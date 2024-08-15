@@ -1,31 +1,29 @@
-%% Introduction to and Purpose of the Plot Road codes
+%% Introduction to and Purpose of the plotCV2X codes
 % This is a strter script to show the primary functionality of the
 % plotRoad library.
 %
 % This is the explanation of the code that can be found by running
 %
-%       script_demo_plotRoad
+%       script_demo_plotCV2X
 %
-% This is a script to demonstrate the functions within the PlotRoad code
+% This is a script to demonstrate the functions within the PlotCV2X code
 % library. This code repo is typically located at:
 %
-%   https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad
+%   https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotCV2X
 %
 % If you have questions or comments, please contact Sean Brennan at
-% sbrennan@psu.edu or Vaishnavi Wagh, vbw5054@psu.edu
+% sbrennan@psu.edu
 
 
 
 %% Revision History:
-% 2023_06_01 - sbrennan@psu.edu and vbw5054@psu.edu
-% -- First write of code using LOadWZ code as starter
-% 2023_08_10 - sbrennan@psu.edu
-% -- Changed name to PlotRoad to allow more flexibility for non-track plots
+% 2023_08_15 - sbrennan@psu.edu and vbw5054@psu.edu
+% -- First write of code using PlotROad code as starter
 
 
 %% To-Do list
-% 2024_08_13 - S. Brennan
-% -- Move fcn_plotRoad_breakArrayByNans out of this library, into Debug
+% 2024_08_15 - S. Brennan
+% -- Fix gca versus gcf in the plotRoad library, under the LL plot function
 
 %% Prep the workspace
 close all
@@ -43,6 +41,11 @@ ith_library = 1;
 library_name{ith_library}    = 'DebugTools_v2023_04_22';
 library_folders{ith_library} = {'Functions','Data'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/archive/refs/tags/DebugTools_v2023_04_22.zip';
+
+ith_library = ith_library+1;
+library_name{ith_library}    = 'PlotRoad_v2024_08_15';
+library_folders{ith_library} = {'Functions', 'Data'};
+library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_15.zip'; 
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PathClass_v2024_03_14';
@@ -72,7 +75,7 @@ library_url{ith_library}     = 'https://github.com/ivsg-psu/FeatureExtraction_Da
 
 %% Clear paths and folders, if needed
 if 1==0
-    clear flag_plotRoad_Folders_Initialized;
+    clear flag_plotCV2X_Folders_Initialized;
     fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
 
     % Clean up data files
@@ -90,10 +93,10 @@ end
 
 
 %% Do we need to set up the work space?
-if ~exist('flag_plotRoad_Folders_Initialized','var')
+if ~exist('flag_plotCV2X_Folders_Initialized','var')
     this_project_folders = {'Functions','Data'};
     fcn_INTERNAL_initializeUtilities(library_name,library_folders,library_url,this_project_folders);
-    flag_plotRoad_Folders_Initialized = 1;
+    flag_plotCV2X_Folders_Initialized = 1;
 end
 
 %% Load hard-coded vectors
@@ -110,22 +113,26 @@ setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 
+setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LATITUDE','40.86368573');
+setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LONGITUDE','-77.83592832');
+setenv('MATLABFLAG_PLOTCV2X_REFERENCE_ALTITUDE','344.189');
+
 
 %% Set environment flags for plotting
 % These are values to set if we are forcing image alignment via Lat and Lon
 % shifting, when doing geoplot. This is added because the geoplot images
 % are very, very slightly off at the test track, which is confusing when
 % plotting data above them.
-setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
-setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
+setenv('MATLABFLAG_PLOTCV2X_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
+setenv('MATLABFLAG_PLOTCV2X_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
 
 
 %% Set environment flags for input checking
 % These are values to set if we want to check inputs or do debugging
 % setenv('MATLABFLAG_FINDEDGE_FLAG_CHECK_INPUTS','1');
 % setenv('MATLABFLAG_FINDEDGE_FLAG_DO_DEBUG','1');
-setenv('MATLABFLAG_PLOTROAD_FLAG_CHECK_INPUTS','1');
-setenv('MATLABFLAG_PLOTROAD_FLAG_DO_DEBUG','0');
+setenv('MATLABFLAG_PLOTCV2X_FLAG_CHECK_INPUTS','1');
+setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 
 
 %% Core Functions
