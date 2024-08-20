@@ -1,5 +1,5 @@
 
-# FieldDataCollection_VisualizingFieldData_PlotRoad
+# FieldDataCollection_VisualizingFieldData_PlotCV2X
 
 <!--
 The following template is based on:
@@ -13,7 +13,7 @@ Search for this, and you will find!
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
-  <h2 align="center"> # FieldDataCollection_VisualizingFieldData_PlotRoad
+  <h2 align="center"> # FieldDataCollection_VisualizingFieldData_PlotCV2X
   </h2>
 
   <pre align="center">
@@ -21,7 +21,7 @@ Search for this, and you will find!
 </pre>
 
   <p align="center">
-    The purpose of this code is to plot various types of geometric shapes and LLA and ENU data on geoplot or ENU plots. This library aims to visualize collected data, for example including color-mapping key variables onto geo-locations, thus allowing easy geo-data analysis.
+    The purpose of this code is to plot CV2X data for the purposes of analyzing RSU and OBU performance. The basic goals are to assess RSU range and agreement of this with OBU measurements, assess RSU coverage areas (start and end of coverage on roads), and to assess OBU safety metrics such as velocity, lane position, location of lane changes, etc.
     <br />
   </p>
 </p>
@@ -51,20 +51,20 @@ Search for this, and you will find!
       <ul>
         <li><a href="#core-functions">Core Functions</li>
         <ul>
-          <li><a href="#fcn_plotroad_plotxy">fcn_plotRoad_plotXY - plots XY data with user-defined formatting</li>
-          <li><a href="#fcn_plotroad_plotxyi">fcn_plotRoad_plotXYI - plots XY data with intensiy color mapping</li>
-          <li><a href="#fcn_plotroad_plotxyz">fcn_plotRoad_plotXYZ - plots XYZ data with user-defined formatting strings</li>
-          <li><a href="#fcn_plotroad_plotxyzi">fcn_plotRoad_plotXYZI - plots XYZ data with intensiy color mapping</li>
-          <li><a href="#fcn_plotroad_plotll">fcn_plotRoad_plotLL - geoplots Latitude and Longitude data with user-defined formatting strings</li>
-          <li><a href="#fcn_plotroad_plotlli">fcn_plotRoad_plotLLI - geoplots Latitude and Longitude data with intensiy color mapping</li>
+          <li><a href="#fcn_plotcv2x_loaddatafromfile">fcn_plotCV2X_loadDataFromFile - loads time+ENU and time+LLA data from file</li>
+          <li><a href="#fcn_plotcv2x_rangersu_circle">fcn_plotCV2X_plotRSURangeCircle - given a RSU ID, plots range circles</li>
+          <li><a href="#fcn_PlotCV2X_plotxyz">fcn_PlotCV2X_plotXYZ - plots XYZ data with user-defined formatting strings</li>
+          <li><a href="#fcn_PlotCV2X_plotxyzi">fcn_PlotCV2X_plotXYZI - plots XYZ data with intensiy color mapping</li>
+          <li><a href="#fcn_PlotCV2X_plotll">fcn_PlotCV2X_plotLL - geoplots Latitude and Longitude data with user-defined formatting strings</li>
+          <li><a href="#fcn_PlotCV2X_plotlli">fcn_PlotCV2X_plotLLI - geoplots Latitude and Longitude data with intensiy color mapping</li>
         </ul>
         <li><a href="#supporting-functions">Supporting Functions</li>
         <ul>
-          <li><a href="#fcn_plotroad_calcrectanglexyz">fcn_plotRoad_calcRectangleXYZ - finds the XY(Z) coordinates of a rectangle</li>
-          <li><a href="#fcn_plotroad_breakarraybynans">fcn_plotRoad_breakArrayByNans - breaks data separated by nan into subdata</li>
-          <li><a href="#fcn_plotroad_plottracexy">fcn_plotRoad_plotTraceXY - plots EN components of ENU data as a trace</li>
-          <li><a href="#fcn_plotroad_plottracell">fcn_plotRoad_plotTraceLL - plots LL components of LLA data as a trace</li>
-          <li><a href="#fcn_plotroad_plottraces">fcn_plotRoad_plotTraces - plots traces in LLA, ENU, and/or STH coords</li>
+          <li><a href="#fcn_PlotCV2X_calcrectanglexyz">fcn_PlotCV2X_calcRectangleXYZ - finds the XY(Z) coordinates of a rectangle</li>
+          <li><a href="#fcn_PlotCV2X_breakarraybynans">fcn_PlotCV2X_breakArrayByNans - breaks data separated by nan into subdata</li>
+          <li><a href="#fcn_PlotCV2X_plottracexy">fcn_PlotCV2X_plotTraceXY - plots EN components of ENU data as a trace</li>
+          <li><a href="#fcn_PlotCV2X_plottracell">fcn_PlotCV2X_plotTraceLL - plots LL components of LLA data as a trace</li>
+          <li><a href="#fcn_PlotCV2X_plottraces">fcn_PlotCV2X_plotTraces - plots traces in LLA, ENU, and/or STH coords</li>
         </ul>
       </ul>
     <li><a href="#usage">Usage Examples</a></li>
@@ -91,7 +91,7 @@ You can find more information about the ADS project at :
 
 This repository was created to better visualize and plot the location and time data collected by the CV2X communication system. The functions in this repo can also be used to plot geometric shapes that represenat range of coverage and Autonomous Vehicle (as a rectangle).
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
@@ -104,14 +104,14 @@ This repository was created to better visualize and plot the location and time d
 2. Clone the repo
 
    ```sh
-   git clone https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_plotroad/commits/main/
+   git clone https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_PlotCV2X/commits/main/
    ```
 
 3. Run the main code in the root of the folder (script_demo_plotTestTrack.m). This will download the required utilities for this code, unzip the zip files into a Utilities folder (.\Utilities), and update the MATLAB path to include the Utility locations. This install process will only occur the first time. Note: to force the install to occur again, delete the Utilities directory
 
 4. Confirm it works! Run script_demo_plotTestTrack. If the code works, the script should run without errors. This script produces numerous example images such as those in this README file.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
@@ -127,7 +127,7 @@ The following are the top level directories within the repository:
  <li>/Utilities: Dependencies that are utilized but not implemented in this repository are placed in the Utilities directory. These can be single files but are most often other cloned repositories.</li>
 </ul>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
@@ -157,201 +157,201 @@ The following are the top level directories within the repository:
 
 ### Core Functions
 
-#### fcn_plotRoad_plotXY
+#### **fcn_plotCV2X_loadDataFromFile**
 
-plots XY data with user-defined formatting strings
-
- **FORMAT:**
-
-  ```Matlab
-    h_plot = fcn_plotRoad_plotXY(XYdata, (plotFormat), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotXY.jpg" alt="fcn_plotRoad_plotXY picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotXY</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
-
-***
-
-#### **fcn_plotRoad_plotXYI**
-
-plots XY data with intensiy color mapping
+loads time+ENU and time+LLA data from file
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_plotRoad_plotXYI(XYIdata, (plotFormat), (colorMap), (fig_num))
+    [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotXYI.jpg" alt="fcn_plotRoad_plotXYI picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotXYI</figcaption>
+  <img src=".\Images\fcn_plotCV2X_loadDataFromFile.jpg" alt="fcn_plotCV2X_loadDataFromFile picture" width="800" height="400">
+  <figcaption>Example of fcn_plotCV2X_loadDataFromFile</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotXYZ**
+#### **fcn_plotCV2X_plotRSURangeCircle**
+
+given a RSU ID, plots range circles
+
+ **FORMAT:**
+
+  ```Matlab
+    [h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = fcn_plotCV2X_plotRSURangeCircle(RSUid, (plotFormat), (fig_num))
+  ```
+
+<pre align="center">
+  <img src=".\Images\fcn_plotCV2X_rangeRSU_circle.gif" alt="fcn_plotCV2X_plotRSURangeCircle picture" width="500" height="400">
+  <figcaption>Example of fcn_plotCV2X_plotRSURangeCircle</figcaption>
+</pre>
+
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+
+***
+
+#### **fcn_PlotCV2X_plotXYZ**
 
 plots XYZ data with user-defined formatting strings
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_plotRoad_plotXYZ(XYZdata, (plotFormat), (fig_num))
+    h_plot = fcn_PlotCV2X_plotXYZ(XYZdata, (plotFormat), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotXYZ.jpg" alt="fcn_plotRoad_plotXYZ picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotXYZ</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotXYZ.jpg" alt="fcn_PlotCV2X_plotXYZ picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotXYZ</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotXYZI**
+#### **fcn_PlotCV2X_plotXYZI**
 
 plots XYZ data with intensiy color mapping
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_plotRoad_plotXYZI(XYZIdata, (plotFormat), (colorMap), (fig_num))
+    h_plot = fcn_PlotCV2X_plotXYZI(XYZIdata, (plotFormat), (colorMap), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotXYZI.jpg" alt="fcn_plotRoad_plotXYZI picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotXYZI</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotXYZI.jpg" alt="fcn_PlotCV2X_plotXYZI picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotXYZI</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotLL**
+#### **fcn_PlotCV2X_plotLL**
 
 geoplots Latitude and Longitude data with user-defined formatting strings
 
  **FORMAT:**
 
   ```Matlab
-    h_geoplot = fcn_plotRoad_plotLL((LLdata), (plotFormat), (fig_num))
+    h_geoplot = fcn_PlotCV2X_plotLL((LLdata), (plotFormat), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotLL.jpg" alt="fcn_plotRoad_plotLL picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotLL</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotLL.jpg" alt="fcn_PlotCV2X_plotLL picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotLL</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotLLI**
+#### **fcn_PlotCV2X_plotLLI**
 
 geoplots Latitude and Longitude data with intensiy color mapping
 
  **FORMAT:**
 
   ```Matlab
-    h_geoplot = fcn_plotRoad_plotLLI(LLdata, (plotFormat), (colorMap), (fig_num))
+    h_geoplot = fcn_PlotCV2X_plotLLI(LLdata, (plotFormat), (colorMap), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotLLI.jpg" alt="fcn_plotRoad_plotLLI picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotLLI</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotLLI.jpg" alt="fcn_PlotCV2X_plotLLI picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotLLI</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
 ### Supporting functions
 
-#### **fcn_plotRoad_calcRectangleXYZ**
+#### **fcn_PlotCV2X_calcRectangleXYZ**
 
 finds the XY(Z) coordinates of a rectangle
 
  **FORMAT:**
 
   ```Matlab
-    cornersXYZ = fcn_plotRoad_calcRectangleXYZ(centerPointXYZ, LWH, (yawAngle), (centerOffsetLWH), (fig_num))
+    cornersXYZ = fcn_PlotCV2X_calcRectangleXYZ(centerPointXYZ, LWH, (yawAngle), (centerOffsetLWH), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_calcRectangleXYZ.jpg" alt="fcn_plotRoad_calcRectangleXYZ picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_calcRectangleXYZ</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_calcRectangleXYZ.jpg" alt="fcn_PlotCV2X_calcRectangleXYZ picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_calcRectangleXYZ</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_breakArrayByNans**
+#### **fcn_PlotCV2X_breakArrayByNans**
 
 breaks data separated by nan into subdata
 
  **FORMAT:**
 
   ```Matlab
-    indicies_cell_array = fcn_plotRoad_breakArrayByNans(input_array, (fig_num))
+    indicies_cell_array = fcn_PlotCV2X_breakArrayByNans(input_array, (fig_num))
   ```
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotTraceXY**
+#### **fcn_PlotCV2X_plotTraceXY**
 
 plots EN components of ENU data as a trace
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_plotRoad_plotTraceXY(XYdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
+    h_plot = fcn_PlotCV2X_plotTraceXY(XYdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotTraceXY.jpg" alt="fcn_plotRoad_plotTraceXY picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotTraceXY</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotTraceXY.jpg" alt="fcn_PlotCV2X_plotTraceXY picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotTraceXY</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotTraceLL**
+#### **fcn_PlotCV2X_plotTraceLL**
 
 plots LL components of LLA data as a trace
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_plotRoad_plotTraceLL(LLdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
+    h_plot = fcn_PlotCV2X_plotTraceLL(LLdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotTraceLL.jpg" alt="fcn_plotRoad_plotTraceLL picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotTraceLL</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotTraceLL.jpg" alt="fcn_PlotCV2X_plotTraceLL picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotTraceLL</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_plotRoad_plotTraces**
+#### **fcn_PlotCV2X_plotTraces**
 
 plots LL components of LLA data as a trace
 
  **FORMAT:**
 
   ```Matlab
-          fcn_plotRoad_plotTraces(...
+          fcn_PlotCV2X_plotTraces(...
          Trace_coordinates, input_coordinates_type,...
          (plotFormat),...
          (reference_unit_tangent_vector),...
@@ -360,11 +360,11 @@ plots LL components of LLA data as a trace
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotRoad_plotTraces.jpg" alt="fcn_plotRoad_plotTraces picture" width="500" height="400">
-  <figcaption>Example of fcn_plotRoad_plotTraces</figcaption>
+  <img src=".\Images\fcn_PlotCV2X_plotTraces.jpg" alt="fcn_PlotCV2X_plotTraces picture" width="500" height="400">
+  <figcaption>Example of fcn_PlotCV2X_plotTraces</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
@@ -387,20 +387,20 @@ help fcn_fcnname
 
 for any function to view function details.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
 
 Sean Brennan - <sbrennan@psu.edu>
 
-Project Link: <https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_plotroad>
+Project Link: <https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_PlotCV2X>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotroad">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>

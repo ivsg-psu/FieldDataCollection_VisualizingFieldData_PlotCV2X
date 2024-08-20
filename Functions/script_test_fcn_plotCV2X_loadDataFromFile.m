@@ -4,14 +4,16 @@
 % This function was written on 2024_08_15 by S. Brennan, sbrennan@psu.edu
 
 
-%% test 1 - load the 2024_08_09a test file
+%% test 1 - load the TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv test file
 fig_num = 1;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_PendulumRSU_InstallTest_2024_08_09a.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+subplot(1,2,1); title('ENU'); subplot(1,2,2); title('LLA');
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_loadDataFromFile',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Does the data have 4 columns?
 assert(length(tLLA(1,:))== 4)
@@ -27,7 +29,7 @@ fig_num = 2;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_PendulumRSU_InstallTest_2024_08_09a.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, ([]));
 
@@ -43,16 +45,78 @@ assert(length(tENU(:,1))== Nrows_expected)
 
 close(2);
 
+%% test 3 - load the TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv test file
+fig_num = 3;
+figure(fig_num);
+clf;
+
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv'; % Path to your CSV file
+
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+subplot(1,2,1); title('ENU'); subplot(1,2,2); title('LLA');
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_loadDataFromFile',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+% Does the data have many rows
+Nrows_expected = 1081;
+assert(length(tLLA(:,1))== Nrows_expected)
+assert(length(tENU(:,1))== Nrows_expected)
+
+%% test 4 - load the TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv test file
+fig_num = 4;
+figure(fig_num);
+clf;
+
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+subplot(1,2,1); title('ENU'); subplot(1,2,2); title('LLA');
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_loadDataFromFile',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+% Does the data have many rows
+Nrows_expected = 1688;
+assert(length(tLLA(:,1))== Nrows_expected)
+assert(length(tENU(:,1))== Nrows_expected)
+
+%% test 5 - load the TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv test file
+fig_num = 5;
+figure(fig_num);
+clf;
+
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+subplot(1,2,1); title('ENU'); subplot(1,2,2); title('LLA');
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_loadDataFromFile',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+% Does the data have many rows
+Nrows_expected = 1697;
+assert(length(tLLA(:,1))== Nrows_expected)
+assert(length(tENU(:,1))== Nrows_expected)
+
+
 %% Speed test
 
-csvFile = 'TestTrack_PendulumRSU_InstallTest_2024_08_09a.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 
 fig_num=[];
 REPS=5; 
 minTimeSlow=Inf;
 maxTimeSlow=-Inf;
 tic;
-%slow mode calculation - code copied from plotVehicleXYZ
+
+% Slow mode calculation - code copied from plotVehicleXYZ
 for i=1:REPS
     tstart=tic;
     [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
@@ -61,8 +125,9 @@ for i=1:REPS
     maxTimeSlow=max(telapsed,maxTimeSlow);
 end
 averageTimeSlow=toc/REPS;
-%slow mode END
-%Fast Mode Calculation
+% Slow mode END
+
+% Fast Mode Calculation
 fig_num = -1;
 minTimeFast = Inf;
 tic;
@@ -73,7 +138,9 @@ for i=1:REPS
     minTimeFast = min(telapsed,minTimeFast);
 end
 averageTimeFast = toc/REPS;
-%Display Console Comparison
+% Fast mode END
+
+% Display Console Comparison
 if 1==1
     fprintf(1,'\n\nComparison of fcn_plotCV2X_loadDataFromFile without speed setting (slow) and with speed setting (fast):\n');
     fprintf(1,'N repetitions: %.0d\n',REPS);

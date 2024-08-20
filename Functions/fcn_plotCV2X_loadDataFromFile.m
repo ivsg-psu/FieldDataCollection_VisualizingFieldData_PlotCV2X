@@ -207,7 +207,7 @@ if flag_do_plots == 1
     plotFormat.Color = [0 0 1];
     plotFormat.Marker = '.';
     plotFormat.MarkerSize = 10;
-    plotFormat.LineStyle = '-';
+    plotFormat.LineStyle = 'none';
     plotFormat.LineWidth = 5;
 
     flag_plot_headers_and_tailers = 1;

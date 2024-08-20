@@ -43,9 +43,14 @@ library_folders{ith_library} = {'Functions','Data'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/archive/refs/tags/DebugTools_v2023_04_22.zip';
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'PlotRoad_v2024_08_15';
+library_name{ith_library}    = 'GeometryClass_v2024_08_16';
+library_folders{ith_library} = {'Functions'};
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_GeomClassLibrary/archive/refs/tags/GeometryClass_v2024_08_16.zip';
+
+ith_library = ith_library+1;
+library_name{ith_library}    = 'PlotRoad_v2024_08_19';
 library_folders{ith_library} = {'Functions', 'Data'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_15.zip'; 
+library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip'; 
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PathClass_v2024_03_14';
@@ -109,9 +114,16 @@ hard_coded_reference_unit_tangent_vector_LC_south_lane = [0.794630317120972   0.
 %% Set environment flags that define the ENU origin
 % This sets the "center" of the ENU coordinate system for all plotting
 % functions
+% Location for Test Track base station
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
+
+% % Location for Pittsburgh, site 1
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.43073');
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-79.87261');
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
+
 
 setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LATITUDE','40.86368573');
 setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LONGITUDE','-77.83592832');
@@ -150,167 +162,198 @@ setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 % https://patorjk.com/software/taag/#p=display&f=Big&t=Core%20%20Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-%% fcn_plotRoad_plotXY
-% plots XY data with user-defined formatting
+%% fcn_plotCV2X_loadDataFromFile
+% loads time+ENU and time+LLA data from file
+% [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
 
 fig_num = 1;
 figure(fig_num);
 clf;
 
-time = linspace(0,10,100)';
-XYdata = [time sin(time)];
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 
-% Test the function
-clear plotFormat
-plotFormat.Color = [0 0.7 0];
-plotFormat.Marker = '.';
-plotFormat.MarkerSize = 10;
-plotFormat.LineStyle = '-';
-plotFormat.LineWidth = 3;
-h_plot = fcn_plotRoad_plotXY(XYdata, (plotFormat), (fig_num));
-title(sprintf('Example %.0d: showing  color numbers',fig_num), 'Interpreter','none');
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'}, 'Interpreter','none');
 
-% Check results
-assert(ishandle(h_plot));
+% Was a figure created?
+assert(all(ishandle(fig_num)));
 
-%% fcn_plotRoad_plotXYI
-% plots XY data with intensiy color mapping
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+% Does the data have many rows
+Nrows_expected = 1149;
+assert(length(tLLA(:,1))== Nrows_expected)
+assert(length(tENU(:,1))== Nrows_expected)
+
+
+%% fcn_plotCV2X_plotRSURangeCircle  
+% given a RSU ID, plots range circles
+% 
+% FORMAT:
+%
+%      [h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = fcn_plotCV2X_plotRSURangeCircle(RSUid, (plotFormat), (fig_num))
 
 fig_num = 2;
 figure(fig_num);
 clf;
 
-time = linspace(0,10,100)';
-XYIdata = [time sin(time) cos(time)];
-
 % Test the function
-plotFormat = 'r';
-colorMap = [];
-h_plot = fcn_plotRoad_plotXYI(XYIdata, (plotFormat),  (colorMap), (fig_num));
-title(sprintf('Example %.0d: showing user-defined color to produce colormap',fig_num), 'Interpreter','none');
+RSUid = 1;
 
-% Check results
-assert(all(ishandle(h_plot(:))));
-
-%% fcn_plotRoad_plotXYZ
-% plots XYZ data with user-defined formatting strings
-
-fig_num = 3;
-figure(fig_num);
-clf;
-
-time = linspace(0,10,100)';
-XYZdata = [time sin(time) cos(time)];
-
-% Test the function
-plotFormat = 'r.-';
-h_plot = fcn_plotRoad_plotXYZ(XYZdata, (plotFormat), (fig_num));
-title(sprintf('Example %.0d: showing basic plot string',fig_num), 'Interpreter','none');
-
-% Check results
-assert(ishandle(h_plot));
-
-
-
-%% fcn_plotRoad_plotXYZI
-% plots XYZ data with intensiy color mapping
-
-fig_num = 4;
-figure(fig_num);
-clf;
-
-time = linspace(0,10,100)';
-XYZIdata = [time sin(time) 1/25*(time-5).^2  cos(time)];
-
-% Test the function
-clear plotFormat
-plotFormat.LineStyle = ':';
-plotFormat.LineWidth = 5;
-plotFormat.Marker = '+';
-plotFormat.MarkerSize = 10;
-colorMapString = 'hot';
-colormapValues = colormap(colorMapString);
-indicies_to_keep = (1:8:256)';
-colormapValues = colormapValues(indicies_to_keep,:);
-
-h_plot = fcn_plotRoad_plotXYZI(XYZIdata, (plotFormat),  (colormapValues), (fig_num));
-title(sprintf('Example %.0d: showing use of a complex plotFormat',fig_num), 'Interpreter','none');
-
-% Check results
-good_indicies = ~isnan(h_plot);
-assert(all(ishandle(h_plot(good_indicies,1))));
-
-%% fcn_plotRoad_plotLL
-% geoplots Latitude and Longitude data with user-defined formatting strings
-
-fig_num = 5;
-figure(fig_num);
-clf;
-
-
-% Now call the function again to plot data into an existing figure to check
-% that this works
-data3 = [
-    -77.83108116099999,40.86426763900005,0
-    -77.83098509099995,40.86432365200005,0
-    -77.83093857199998,40.86435301300003,0
-    -77.83087253399998,40.86439877000004,0
-    -77.83080882499996,40.86444684500003,0
-    -77.83075077399997,40.86449883100005,0
-    -77.83069596999997,40.86455288200005,0
-    -77.83064856399994,40.86461089600004,0];
-
-% NOTE: above data is in BAD column order, so we
-% have to manually rearrange it.
-LLdata = [data3(:,2), data3(:,1), data3(:,3)];
-
-% Test the function
-clear plotFormat
-plotFormat.Color = [1 1 0];
-plotFormat.Marker = '.';
-plotFormat.MarkerSize = 10;
-plotFormat.LineStyle = '-';
-plotFormat.LineWidth = 3;
-h_geoplot = fcn_plotRoad_plotLL((LLdata), (plotFormat), (fig_num));
-
-title(sprintf('Example %.0d: showing use of plotLL',fig_num), 'Interpreter','none');
-
-%% fcn_plotRoad_plotLLI
-% geoplots Latitude and Longitude data with intensiy color mapping
-
-fig_num = 6;
-figure(fig_num);
-clf;
-
-% Fill in data
-data3 = [
-    -77.83108116099999,40.86426763900005,0
-    -77.83098509099995,40.86432365200005,0
-    -77.83093857199998,40.86435301300003,0
-    -77.83087253399998,40.86439877000004,0
-    -77.83080882499996,40.86444684500003,0
-    -77.83075077399997,40.86449883100005,0
-    -77.83069596999997,40.86455288200005,0
-    -77.83064856399994,40.86461089600004,0];
-
-% NOTE: above data is in BAD column order, so we
-% have to manually rearrange it.
-time = linspace(0,10,length(LLdata(:,1)))';
-LLIdata = [data3(:,2), data3(:,1), time];
-
-% Test the function
 clear plotFormat
 plotFormat.LineStyle = '-';
-plotFormat.LineWidth = 3;
-plotFormat.Marker = '.';
-plotFormat.MarkerSize = 5;
-colorMap = 'hot';
-h_plot = fcn_plotRoad_plotLLI(LLIdata, (plotFormat),  (colorMap), (fig_num));
-title(sprintf('Example %.0d: showing use of fcn_plotRoad_plotLLI',fig_num), 'Interpreter','none');
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 10;
+plotFormat.Color = [1 0 1];
+
+[h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = fcn_plotCV2X_plotRSURangeCircle(RSUid, (plotFormat), (fig_num));
 
 % Check results
-good_indicies = find(~isnan(h_plot));
-assert(all(ishandle(h_plot(good_indicies,1))));
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Were plot handles returned?
+assert(all(ishandle(h_geoplot(:))));
+
+Ncolors = 64;
+Nangles = 91;
+
+% Are the dimensions of Lat Long data correct?
+assert(Ncolors==length(AllLatData(:,1)));
+assert(Ncolors==length(AllLonData(:,1)));
+assert(Nangles==length(AllLonData(1,:)));
+assert(length(AllLatData(1,:))==length(AllLonData(1,:)));
+
+% Are the dimension of X Y data correct?
+assert(Ncolors==length(AllXData(:,1)));
+assert(Ncolors==length(AllYData(:,1)));
+assert(length(AllXData(1,:))==length(AllYData(1,:)));
+assert(length(AllXData(1,:))==length(AllLatData(1,:)));
+
+% Are the dimensions of the ringColors correct?
+assert(isequal(size(ringColors),[Ncolors 3]));
+
+% Test the function
+RSUid = 2;
+
+clear plotFormat
+plotFormat.LineStyle = '-';
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 10;
+plotFormat.Color = [0 1 0];
+
+[h_geoplot2, AllLatData2, AllLonData2, AllXData2, AllYData2, ringColors2] = fcn_plotCV2X_plotRSURangeCircle(RSUid, (plotFormat), (fig_num));
+
+% Check results
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Were plot handles returned?
+assert(all(ishandle(h_geoplot2(:))));
+
+Ncolors = 64;
+Nangles = 91;
+
+% Are the dimensions of Lat Long data correct?
+assert(Ncolors==length(AllLatData2(:,1)));
+assert(Ncolors==length(AllLonData2(:,1)));
+assert(Nangles==length(AllLonData2(1,:)));
+assert(length(AllLatData2(1,:))==length(AllLonData2(1,:)));
+
+% Are the dimension of X Y data correct?
+assert(Ncolors==length(AllXData2(:,1)));
+assert(Ncolors==length(AllYData2(:,1)));
+assert(length(AllXData2(1,:))==length(AllYData2(1,:)));
+assert(length(AllXData2(1,:))==length(AllLatData2(1,:)));
+
+% Are the dimensions of the ringColors correct?
+assert(isequal(size(ringColors2),[Ncolors 3]));
+
+
+% Test the function
+RSUid = 3;
+
+clear plotFormat
+plotFormat.LineStyle = '-';
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 10;
+plotFormat.Color = [0 1 1];
+
+[h_geoplot3, AllLatData3, AllLonData3, AllXData3, AllYData3, ringColors3] = fcn_plotCV2X_plotRSURangeCircle(RSUid, (plotFormat), (fig_num));
+
+% Check results
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Were plot handles returned?
+assert(all(ishandle(h_geoplot3(:))));
+
+Ncolors = 64;
+Nangles = 91;
+
+% Are the dimensions of Lat Long data correct?
+assert(Ncolors==length(AllLatData3(:,1)));
+assert(Ncolors==length(AllLonData3(:,1)));
+assert(Nangles==length(AllLonData3(1,:)));
+assert(length(AllLatData3(1,:))==length(AllLonData3(1,:)));
+
+% Are the dimension of X Y data correct?
+assert(Ncolors==length(AllXData3(:,1)));
+assert(Ncolors==length(AllYData3(:,1)));
+assert(length(AllXData3(1,:))==length(AllYData3(1,:)));
+assert(length(AllXData3(1,:))==length(AllLatData3(1,:)));
+
+% Are the dimensions of the ringColors correct?
+assert(isequal(size(ringColors3),[Ncolors 3]));
+
+% Set viewable area:
+set(gca,'MapCenter',[40.864266781888709 -77.833965384489659],'ZoomLevel',16);
+
+title(sprintf('Example %.0d: fcn_plotCV2X_plotRSURangeCircle',fig_num), 'Interpreter','none');
+subtitle('Showing animation of results');
+
+%%%% Do the animation 
+Nrings = length(AllLatData(:,1));
+skipInterval = Nrings/4;
+
+% Prep for animation
+filename = 'fcn_plotCV2X_rangeRSU_circle.gif';
+flagFirstTime = 1;
+
+% Clear the plot
+for timeIndex = 1:100
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot(1:end-1), AllLatData, AllLonData, skipInterval,-1);
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot2(1:end-1), AllLatData2, AllLonData2, skipInterval,-1);
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot3(1:end-1), AllLatData3, AllLonData3, skipInterval,-1);
+end
+
+for timeIndex = 50:200
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot(1:end-1), AllLatData, AllLonData, skipInterval,-1);
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot2(1:end-1), AllLatData2, AllLonData2, skipInterval,-1);
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplot3(1:end-1), AllLatData3, AllLonData3, skipInterval,-1);
+
+    % Create an animated gif?
+    if 1==1
+        frame = getframe(gcf);
+        current_image = frame2im(frame);
+        [A,map] = rgb2ind(current_image,256);
+        if flagFirstTime == 1
+            imwrite(A,map,filename,"gif","LoopCount",Inf,"DelayTime",0.1);
+            flagFirstTime = 0;
+        else
+            imwrite(A,map,filename,"gif","WriteMode","append","DelayTime",0.1);
+        end
+    end
+
+    pause(0.02);
+end
+
+
 
 
 
