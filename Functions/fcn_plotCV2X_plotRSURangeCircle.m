@@ -55,8 +55,10 @@ function [h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = f
 % EXAMPLES:
 %
 %       See the script:
-%       script_test_fcn_PlotTestTrack_rangeRSU_circle.m for a full
-%       test suite.
+%
+%       script_test_fcn_plotCV2X_plotRSURangeCircle
+%
+%       for a full test suite.
 %
 % This function was written on 2024_07_10 by A. Kim
 % Questions or comments? sbrennan@psu.edu % Abel's email

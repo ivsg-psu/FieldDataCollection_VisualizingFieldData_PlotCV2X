@@ -1,9 +1,9 @@
-%% script_test_fcn_PlotTestTrack_rangeRSU_circle.m
-% This is a script to exercise the function: fcn_PlotTestTrack_rangeRSU_circle.m
-% This function was written on 2024_07_10 by V. Wagh, vbw5054@psu.edu
+%% script_test_fcn_plotCV2X_plotRSURangeCircle
+% This is a script to exercise the function: fcn_plotCV2X_plotRSURangeCircle
+% This function was written on 2024_08_21 by S. Brennan, sbrennan@psu.edu
 
 % Revision history:
-% 2024_07_10
+% 2024_08_21
 % -- first write of the code
 
 

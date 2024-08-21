@@ -1,25 +1,27 @@
-%% script_test_fcn_plotCV2X_loadDataFromFile
+%% script_test_fcn_plotCV2X_calcVelocity
 % This is a script to exercise the function:
-% fcn_plotCV2X_loadDataFromFile.m
+% fcn_plotCV2X_calcVelocity.m
 % This function was written on 2024_08_15 by S. Brennan, sbrennan@psu.edu
 
 
-%% test 1 - load the TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv test file
+%% test 1 - velocity calculation using TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv test file
 fig_num = 1;
 figure(fig_num);
 clf;
 
+% Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
-[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
-subplot(1,2,1); title('ENU'); subplot(1,2,2); title('LLA');
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_loadDataFromFile',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+% Test the function
+velocity = fcn_plotCV2X_calcVelocity(tENU, (fig_num));
+title({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have 4 columns?
-assert(length(tLLA(1,:))== 4)
+assert(length(velocity(1,:))== 1)
 assert(length(tENU(1,:))== 4)
 
 % Does the data have many rows
@@ -30,14 +32,14 @@ assert(length(tENU(:,1))== Nrows_expected)
 %% test 2 - collect data with no plotting
 fig_num = 2;
 figure(fig_num);
-close(fig_num)
+clf;
 
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, ([]));
 
-% Was a figure NOT created?
-assert(all(~ishandle(fig_num)));
+% Was a figure created?
+assert(all(ishandle(fig_num)));
 
 % Does the data have 4 columns?
 assert(length(tLLA(1,:))== 4)
