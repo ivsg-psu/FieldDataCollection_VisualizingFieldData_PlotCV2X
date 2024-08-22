@@ -17,7 +17,7 @@ Search for this, and you will find!
   </h2>
 
   <pre align="center">
-    <img src=".\Images\plotRoad.jpg" alt="Plot of a trace on the road of LTI Test Track" width="960" height="540">
+    <img src=".\Images\PlotCV2X.jpg" alt="Plot of a trace on the road of LTI Test Track" width="960" height="540">
 </pre>
 
   <p align="center">
@@ -58,11 +58,6 @@ Search for this, and you will find!
         </ul>
         <li><a href="#supporting-functions">Supporting Functions</li>
         <ul>
-          <li><a href="#fcn_PlotCV2X_calcrectanglexyz">fcn_PlotCV2X_calcRectangleXYZ - finds the XY(Z) coordinates of a rectangle</li>
-          <li><a href="#fcn_PlotCV2X_breakarraybynans">fcn_PlotCV2X_breakArrayByNans - breaks data separated by nan into subdata</li>
-          <li><a href="#fcn_PlotCV2X_plottracexy">fcn_PlotCV2X_plotTraceXY - plots EN components of ENU data as a trace</li>
-          <li><a href="#fcn_PlotCV2X_plottracell">fcn_PlotCV2X_plotTraceLL - plots LL components of LLA data as a trace</li>
-          <li><a href="#fcn_PlotCV2X_plottraces">fcn_PlotCV2X_plotTraces - plots traces in LLA, ENU, and/or STH coords</li>
         </ul>
       </ul>
     <li><a href="#usage">Usage Examples</a></li>
@@ -245,99 +240,6 @@ calculates velocity given tENU coordinates
 ***
 
 ### Supporting functions
-
-#### **fcn_PlotCV2X_calcRectangleXYZ**
-
-finds the XY(Z) coordinates of a rectangle
-
- **FORMAT:**
-
-  ```Matlab
-    cornersXYZ = fcn_PlotCV2X_calcRectangleXYZ(centerPointXYZ, LWH, (yawAngle), (centerOffsetLWH), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_calcRectangleXYZ.jpg" alt="fcn_PlotCV2X_calcRectangleXYZ picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_calcRectangleXYZ</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_breakArrayByNans**
-
-breaks data separated by nan into subdata
-
- **FORMAT:**
-
-  ```Matlab
-    indicies_cell_array = fcn_PlotCV2X_breakArrayByNans(input_array, (fig_num))
-  ```
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_plotTraceXY**
-
-plots EN components of ENU data as a trace
-
- **FORMAT:**
-
-  ```Matlab
-    h_plot = fcn_PlotCV2X_plotTraceXY(XYdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotTraceXY.jpg" alt="fcn_PlotCV2X_plotTraceXY picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotTraceXY</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_plotTraceLL**
-
-plots LL components of LLA data as a trace
-
- **FORMAT:**
-
-  ```Matlab
-    h_plot = fcn_PlotCV2X_plotTraceLL(LLdata, (plotFormat), (flag_plot_headers_and_tailers), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotTraceLL.jpg" alt="fcn_PlotCV2X_plotTraceLL picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotTraceLL</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_plotTraces**
-
-plots LL components of LLA data as a trace
-
- **FORMAT:**
-
-  ```Matlab
-          fcn_PlotCV2X_plotTraces(...
-         Trace_coordinates, input_coordinates_type,...
-         (plotFormat),...
-         (reference_unit_tangent_vector),...
-         (flag_plot_headers_and_tailers),...
-         (LLA_fig_num), (ENU_fig_num), (STH_fig_num));
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotTraces.jpg" alt="fcn_PlotCV2X_plotTraces picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotTraces</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
