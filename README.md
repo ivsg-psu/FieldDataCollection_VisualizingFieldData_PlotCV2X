@@ -53,10 +53,8 @@ Search for this, and you will find!
         <ul>
           <li><a href="#fcn_plotcv2x_loaddatafromfile">fcn_plotCV2X_loadDataFromFile - loads time+ENU and time+LLA data from file</li>
           <li><a href="#fcn_plotcv2x_rangersu_circle">fcn_plotCV2X_plotRSURangeCircle - given a RSU ID, plots range circles</li>
-          <li><a href="#fcn_PlotCV2X_plotxyz">fcn_PlotCV2X_plotXYZ - plots XYZ data with user-defined formatting strings</li>
-          <li><a href="#fcn_PlotCV2X_plotxyzi">fcn_PlotCV2X_plotXYZI - plots XYZ data with intensiy color mapping</li>
-          <li><a href="#fcn_PlotCV2X_plotll">fcn_PlotCV2X_plotLL - geoplots Latitude and Longitude data with user-defined formatting strings</li>
-          <li><a href="#fcn_PlotCV2X_plotlli">fcn_PlotCV2X_plotLLI - geoplots Latitude and Longitude data with intensiy color mapping</li>
+          <li><a href="#fcn_plotcv2x_assesstime">fcn_plotCV2X_assessTime - classifies the time vector of the data for errors</li>
+          <li><a href="#fcn_plotcv2x_calcvelocity">fcn_plotCV2X_calcVelocity - calculates velocity given tENU coordinates</li>
         </ul>
         <li><a href="#supporting-functions">Supporting Functions</li>
         <ul>
@@ -195,76 +193,51 @@ given a RSU ID, plots range circles
 
 ***
 
-#### **fcn_PlotCV2X_plotXYZ**
+#### **fcn_plotCV2X_assessTime**
 
-plots XYZ data with user-defined formatting strings
+classifies the time vector of the data for errors
+
+given the tENU data from a CV2X radio, this function assesses whether the
+data contain common errors. The time differences between sequential data
+are analyzed. 
+
+Common errors include the following:
+
+      * modeJumps - the time suddenly has a different zero intercept
+
+      * offsets - at each individual time sample, for a given intercept,
+      the data comes in early, on time, or late. This difference creates
+      an offset.
 
  **FORMAT:**
 
   ```Matlab
-    h_plot = fcn_PlotCV2X_plotXYZ(XYZdata, (plotFormat), (fig_num))
+    [modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tENU, (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotXYZ.jpg" alt="fcn_PlotCV2X_plotXYZ picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotXYZ</figcaption>
+  <img src=".\Images\fcn_plotCV2X_assessTime.jpg" alt="fcn_plotCV2X_assessTime picture" width="500" height="400">
+  <figcaption>Example of fcn_plotCV2X_assessTime</figcaption>
 </pre>
 
 <p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
 
 ***
 
-#### **fcn_PlotCV2X_plotXYZI**
 
-plots XYZ data with intensiy color mapping
+#### **fcn_plotCV2X_calcVelocity**
 
- **FORMAT:**
-
-  ```Matlab
-    h_plot = fcn_PlotCV2X_plotXYZI(XYZIdata, (plotFormat), (colorMap), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotXYZI.jpg" alt="fcn_PlotCV2X_plotXYZI picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotXYZI</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_plotLL**
-
-geoplots Latitude and Longitude data with user-defined formatting strings
+calculates velocity given tENU coordinates
 
  **FORMAT:**
 
   ```Matlab
-    h_geoplot = fcn_PlotCV2X_plotLL((LLdata), (plotFormat), (fig_num))
+  velocity = fcn_plotCV2X_calcVelocity(tENU, (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotLL.jpg" alt="fcn_PlotCV2X_plotLL picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotLL</figcaption>
-</pre>
-
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
-
-***
-
-#### **fcn_PlotCV2X_plotLLI**
-
-geoplots Latitude and Longitude data with intensiy color mapping
-
- **FORMAT:**
-
-  ```Matlab
-    h_geoplot = fcn_PlotCV2X_plotLLI(LLdata, (plotFormat), (colorMap), (fig_num))
-  ```
-
-<pre align="center">
-  <img src=".\Images\fcn_PlotCV2X_plotLLI.jpg" alt="fcn_PlotCV2X_plotLLI picture" width="500" height="400">
-  <figcaption>Example of fcn_PlotCV2X_plotLLI</figcaption>
+  <img src=".\Images\fcn_plotCV2X_calcVelocity.jpg" alt="fcn_plotCV2X_calcVelocity picture" width="500" height="400">
+  <figcaption>Example of fcn_plotCV2X_calcVelocity</figcaption>
 </pre>
 
 <p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>

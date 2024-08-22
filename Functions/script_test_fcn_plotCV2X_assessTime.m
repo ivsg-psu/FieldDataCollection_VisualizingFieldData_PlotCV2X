@@ -12,11 +12,10 @@ clf;
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -40,21 +39,24 @@ close(fig_num);
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, []);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, ([]));
+% sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
-% Was a figure created?
+% Was a figure NOT created?
 assert(all(~ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(velocity(1,:))== 1)
+assert(length(modeIndex(1,:))== 1)
+assert(length(modeJumps(1,:))== 1)
+assert(length(offsetCentisecondsToMode(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
-assert(length(velocity(:,1))== Nrows_expected)
+assert(length(modeIndex(:,1))== Nrows_expected)
+assert(length(modeJumps(:,1))== Nrows_expected)
+assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
 
 
 %% test 3 - load the TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv test file
@@ -65,22 +67,24 @@ clf;
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(velocity(1,:))== 1)
+assert(length(modeIndex(1,:))== 1)
+assert(length(modeJumps(1,:))== 1)
+assert(length(offsetCentisecondsToMode(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
-assert(length(velocity(:,1))== Nrows_expected)
-
+assert(length(modeIndex(:,1))== Nrows_expected)
+assert(length(modeJumps(:,1))== Nrows_expected)
+assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
 
 %% test 4 - load the TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv test file
 fig_num = 4;
@@ -90,22 +94,24 @@ clf;
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(velocity(1,:))== 1)
+assert(length(modeIndex(1,:))== 1)
+assert(length(modeJumps(1,:))== 1)
+assert(length(offsetCentisecondsToMode(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
-assert(length(velocity(:,1))== Nrows_expected)
-
+assert(length(modeIndex(:,1))== Nrows_expected)
+assert(length(modeJumps(:,1))== Nrows_expected)
+assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
 
 %% test 5 - load the TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv test file
 fig_num = 5;
@@ -115,21 +121,24 @@ clf;
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(velocity(1,:))== 1)
+assert(length(modeIndex(1,:))== 1)
+assert(length(modeJumps(1,:))== 1)
+assert(length(offsetCentisecondsToMode(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
-assert(length(velocity(:,1))== Nrows_expected)
+assert(length(modeIndex(:,1))== Nrows_expected)
+assert(length(modeJumps(:,1))== Nrows_expected)
+assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
 
 
 %% Speed test
@@ -137,7 +146,6 @@ assert(length(velocity(:,1))== Nrows_expected)
 % Load the data
 csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
 fig_num=[];
@@ -149,7 +157,7 @@ tic;
 % Slow mode calculation - code copied from plotVehicleXYZ
 for i=1:REPS
     tstart=tic;
-    velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+    [modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
     telapsed=toc(tstart);
     minTimeSlow=min(telapsed,minTimeSlow);
     maxTimeSlow=max(telapsed,maxTimeSlow);
@@ -163,7 +171,7 @@ minTimeFast = Inf;
 tic;
 for i=1:REPS
     tstart = tic;
-    velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+    [modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
     telapsed = toc(tstart);
     minTimeFast = min(telapsed,minTimeFast);
 end
@@ -172,7 +180,7 @@ averageTimeFast = toc/REPS;
 
 % Display Console Comparison
 if 1==1
-    fprintf(1,'\n\nComparison of fcn_plotCV2X_calcVelocity without speed setting (slow) and with speed setting (fast):\n');
+    fprintf(1,'\n\nComparison of fcn_plotCV2X_assessTime without speed setting (slow) and with speed setting (fast):\n');
     fprintf(1,'N repetitions: %.0d\n',REPS);
     fprintf(1,'Slow mode average speed per call (seconds): %.5f\n',averageTimeSlow);
     fprintf(1,'Slow mode fastest speed over all calls (seconds): %.5f\n',minTimeSlow);

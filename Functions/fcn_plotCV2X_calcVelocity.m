@@ -1,4 +1,4 @@
-function velocity = fcn_plotCV2X_calcVelocity(tENU, varargin)
+function velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, varargin)
 %fcn_plotCV2X_calcVelocity  calculates velocity given tENU coordinates
 %
 % this function calculates the apparent velocity of the data given tENU
@@ -10,8 +10,18 @@ function velocity = fcn_plotCV2X_calcVelocity(tENU, varargin)
 %
 % INPUTS:
 %
+%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4] vector
+%
 %      tENU: the [time East North Up] data as an [Nx4] vector, using the
 %      origin as set in the main demo script
+%
+%      modeIndex: the integer denoting which intercept is being shared with
+%      neighbors. This is found by examining the centiSecond delay in each
+%      data, and then finding common modes with a 1-second window.
+%
+%      offsetCentisecondsToMode: an integer count of the hundreths of
+%      seconds that the current sample is off from the current linear time
+%      increase, based on the current mode.
 %
 %      (OPTIONAL INPUTS)
 %
@@ -47,7 +57,7 @@ function velocity = fcn_plotCV2X_calcVelocity(tENU, varargin)
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 flag_max_speed = 0;
-if (nargin==2 && isequal(varargin{end},-1))
+if (nargin==5 && isequal(varargin{end},-1))
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -63,7 +73,7 @@ else
     end
 end
 
-flag_do_debug = 1;
+% flag_do_debug = 1;
 
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
@@ -89,7 +99,7 @@ end
 if 0 == flag_max_speed
     if flag_check_inputs == 1
         % Are there the right number of inputs?
-        narginchk(1,2);
+        narginchk(4,5);
 
     end
 end
@@ -125,85 +135,64 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Ndata = length(tENU(:,1));
 
-time = tENU(:,1);
-adjusted_time = time - time(1,1);
+% Calculate ENU distances
+XYdistances = real(sum(diff(tENU(:,2:3)).^2,2).^0.5);
+XYdistances = [XYdistances(1); XYdistances];
 
-% Check the slippage in time, namely - how far off the reported time is
-% from the actual time
-expected_deltaT = 0.1; % Units are seconds
-expectedTime = (0:Ndata-1)'*expected_deltaT;
-
-if flag_do_debug
-    figure(debug_fig_num);
-    clf;
-
-    subplot(2,2,1);
-    title('Time slippage');
-    plot(expectedTime,adjusted_time,'-');
-    
-    subplot(2,2,2);
-    title('Time slippage');
-    plot(adjusted_time - expectedTime,'-');
-
+% Check inputs (debugging)
+if 1==flag_do_debug
+    disp([tENU XYdistances offsetCentisecondsToMode modeIndex])
 end
 
-plot(0.1*(1:length(time(:,1)))',time)
+% Initialize output vector
+velocity = nan(Ndata,1);
 
-fileID = fopen(csvFile,'r');
-% Read the header
-header_text = textscan(fileID,'%s %s %s %s',1,'Delimiter',',');
+% Time deltas are not valid across mode changes, so we loop through modes
+% and calculate time/distance for each. As well, keep track of the
+% variances and counts of each domain
+Nmodes = modeIndex(end);
+timeVariances = nan(Nmodes,1);
+countModes    = nan(Nmodes,1);
+for ith_mode = 1:Nmodes
+    flags_thisMode = modeIndex==ith_mode;
+    indicies_thisMode = find(flags_thisMode);
 
-% Read the data
-data = textscan(fileID,'%f %f %f %s','Delimiter',',');
-fclose(fileID);
+    % Is this a good mode? Do we have 1 second of data in this mode?
+    if length(indicies_thisMode)>=10
+        countModes(ith_mode,1) = sum(flags_thisMode);        
 
-% Check the data
-Ndata = length(data{1});
-assert(Ndata == length(data{2}));
-assert(Ndata == length(data{3}));
-assert(Ndata == length(data{4}));
+        % Clean up distances - looking for outliers
+        thisModeDistances = XYdistances(indicies_thisMode,1);
+        goodIndiciesDistances = fcn_INTERNAL_removeDistanceOutliers(thisModeDistances);
 
-% Convert the time data from string into seconds
-timeSeconds = nan(Ndata,1); % Initialize the variable
+        % Clean up times - looking for outliers
+        thisModeDeltaTimes = diff(tENU(indicies_thisMode,1));
+        thisModeDeltatimes = [thisModeDeltaTimes(1); thisModeDeltaTimes];
+        goodIndiciesTimes = fcn_INTERNAL_removeTimeOutliers(thisModeDeltatimes);
+        meanDeltaT = mean(thisModeDeltatimes(goodIndiciesTimes));
+        timeVariances(ith_mode,1) = std(thisModeDeltatimes(goodIndiciesTimes));
+        
+        if any(thisModeDeltatimes(goodIndiciesTimes)<0.01)
+            warning('on','backtrace');
+            warning('A poorly defined time interval was encountered. - throwing an error.')
+            error('Small or negative time differences encountered. Cannot calculate velocity.');
+        end
 
-% Break the data into parts using ":" as the separator
-for ith_entry = 1:Ndata
-    splitStr = regexp(data{4}(ith_entry),':','split');
-    cellContents = splitStr{1};
-    time_hours = str2double(cellContents{1});
-    time_minutes = str2double(cellContents{2});
-    time_60seconds = str2double(cellContents{3});
+        thisModeVelocities = thisModeDistances./thisModeDeltatimes;
 
-    % Convert this into seconds
-    timeSeconds(ith_entry,1) = time_hours*3600 + time_minutes*60 + time_60seconds;
+        % Check results
+        if 1==flag_do_debug
+            disp([thisModeDistances thisModeDeltatimes goodIndiciesDistances goodIndiciesTimes])
+        end
+
+        goodIndicies = goodIndiciesTimes.*goodIndiciesDistances;
+        goodIndicies_thisMode = indicies_thisMode(find(goodIndicies)); %#ok<FNDSB>
+
+        % Calculate velocities
+        velocity(goodIndicies_thisMode) = thisModeVelocities(find(goodIndicies)); %#ok<FNDSB>
+    end
 end
 
-% Extract latitude, longitude, elevation, and time values, here we get time
-% as NaNs
-lat = data{1}/10000000;
-lon = data{2}/10000000;
-elv = data{3}/1.0;
-
-% Save result in output format
-tLLA = [timeSeconds lat lon elv];
-
-% convert LLA to ENU
-reference_latitude = 40.86368573;
-reference_longitude = -77.83592832;
-reference_altitude = 344.189;
-MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE = getenv("MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE");
-MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE = getenv("MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE");
-MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE = getenv("MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE");
-if ~isempty(MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE) && ~isempty(MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE) && ~isempty(MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE)
-    reference_latitude  = str2double(MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE);
-    reference_longitude = str2double(MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE);
-    reference_altitude  = str2double(MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE);
-end
-gps_object = GPS(reference_latitude,reference_longitude,reference_altitude); % Load the GPS class
-ENU_coordinates = gps_object.WGSLLA2ENU(lat,lon,elv,reference_latitude,reference_longitude,reference_altitude);
-
-% Save result in output format
-tENU = [timeSeconds ENU_coordinates];
 
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -221,25 +210,35 @@ tENU = [timeSeconds ENU_coordinates];
 % animation if the user has entered a name for the mov file
 if flag_do_plots == 1
 
+
+    % Prep the data
+    goodPlottingIndicies = ~isnan(velocity);
+    rawXYData = [tENU(:,2:3) velocity];
+    plotXYData = rawXYData(goodPlottingIndicies,:);
+    rawLLData = [tLLA(:,2:3) velocity];
+    plotLLData = rawLLData(goodPlottingIndicies,:);
+
+
     figure(fig_num);
     clf;
 
 
     clear plotFormat
-    plotFormat.Color = [0 0 1];
-    plotFormat.Marker = '.';
-    plotFormat.MarkerSize = 10;
     plotFormat.LineStyle = 'none';
     plotFormat.LineWidth = 5;
-
-    flag_plot_headers_and_tailers = 1;
+    plotFormat.Marker = '.';
+    plotFormat.MarkerSize = 10;
+    colorMapMatrixOrString = colormap('turbo');
+    Ncolors = 16;
+    reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
 
 
     subplot(1,2,1);
-    fcn_plotRoad_plotTraceXY(tENU(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+    fcn_plotRoad_plotXYI(plotXYData, (plotFormat), (reducedColorMap), (fig_num));    
+
 
     subplot(1,2,2);
-    fcn_plotRoad_plotTraceLL(tLLA(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+    fcn_plotRoad_plotLLI(plotLLData, (plotFormat), (reducedColorMap), (fig_num));    
 
 end
 
@@ -260,5 +259,53 @@ end
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
+function goodIndicies = fcn_INTERNAL_removeDistanceOutliers(badData)
+% How many points should be used for the median filter? Use at least 7 if
+% we can, but use the data length if we cannot
+Nmedian = min(7,length(badData(:,1)));
 
+% Do median filtering to find outliers
+medianData = medfilt1(badData,Nmedian,'omitnan','truncate'); % Do median filter to remove outliers
+stdMedianData = std(medianData,'omitmissing'); % Find standard deviaiont
+stdMedianData = max(stdMedianData,0.02);  % Make sure standard deviation is not zero
+stdMedianData = min(stdMedianData,0.2);  % Make sure standard deviation does not over-inflate due to bad data
+errorsRelativeToMedian = medianData - badData; % Find differences between data and median filtered values
+goodIndicies = abs(errorsRelativeToMedian)<2*stdMedianData; % Keep only the good data
 
+% Check results
+if 1==0
+    disp([goodIndicies badData errorsRelativeToMedian])
+    disp(min(badData(goodIndicies)));
+    disp(max(badData(goodIndicies)));
+    disp(stdMedianData)
+end
+
+% Call the function again to be sure results do not change after outliers
+% removed. Sometimes the outliers distort the results enough that it causes
+% other outliers to be missed.
+if sum(goodIndicies) ~=length(badData)
+    indicies_to_check = find(goodIndicies);
+    betterIndicies = fcn_INTERNAL_removeDistanceOutliers(badData(indicies_to_check));
+    goodIndicies = indicies_to_check(find(betterIndicies)); %#ok<FNDSB>
+end
+
+% Save results back into "flag" format (1's and 0's)
+tempOutput = zeros(length(badData(:,1)),1);
+tempOutput(goodIndicies,1) = 1;
+goodIndicies = tempOutput;
+end
+
+function goodIndicies = fcn_INTERNAL_removeTimeOutliers(badData)
+% medianData = medfilt1(badData,5,'omitnan','truncate'); % Do median filter to remove outliers
+% stdTimeData = std(medianData,'omitmissing'); % Find standard deviaiont
+% stdTimeData = max(stdTimeData,0.01);  % Make sure standard deviation is not zero
+
+% Hard code allowable variance - time delta should never change
+stdTimeData = 0.01;
+errorsRelativeToMean = 0.1 - badData; % Find differences between expected time sample and actual time sample
+goodIndicies = abs(errorsRelativeToMean)<2*stdTimeData; % Keep only the good data
+
+if 1==0
+    disp([goodIndicies badData])
+end
+end

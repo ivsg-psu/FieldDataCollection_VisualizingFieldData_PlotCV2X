@@ -354,8 +354,96 @@ for timeIndex = 50:200
 end
 
 
+%% fcn_plotCV2X_assessTime
+% classifies the time vector of the data for errors
+%
+% given the tENU data from a CV2X radio, this function assesses whether the
+% data contain common errors. The time differences between sequential data
+% are analyzed. 
+% 
+% Common errors include the following:
+%
+%       * modeJumps - the time suddenly has a different zero intercept
+%       * offsets - at each individual time sample, for a given intercept,
+%       the data comes in early, on time, or late. This difference creates
+%       an offset.
+%
+% FORMAT:
+%
+%       [modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tENU, (fig_num))
+
+%
+fig_num = 3;
+figure(fig_num);
+clf;
+
+% Load the data
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
+
+% Test the function
+[modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_assessTime',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Does the data have right number of columns?
+assert(length(modeIndex(1,:))== 1)
+assert(length(modeJumps(1,:))== 1)
+assert(length(offsetCentisecondsToMode(1,:))== 1)
+
+% Does the data have right number of rows?
+Nrows_expected = length(tLLA(:,1));
+assert(length(modeIndex(:,1))== Nrows_expected)
+assert(length(modeJumps(:,1))== Nrows_expected)
+assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
 
 
+% Set plot
+subplot(1,2,2);
+title('LLA plot');
+set(gca,'MapCenter',[40.863982311180450 -77.834147911147213],'ZoomLevel', 15.375);
+
+
+%% fcn_plotCV2X_calcVelocity
+%   calculates velocity given tENU coordinates
+%
+% this function calculates the apparent velocity of the data given tENU
+% coordinate inputs. 
+%
+% FORMAT:
+%
+%       velocity = fcn_plotCV2X_calcVelocity(tENU, (fig_num))
+%
+
+fig_num = 4;
+figure(fig_num);
+clf;
+
+% Load the data
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
+[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
+
+% Test the function
+velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Does the data have right number of columns?
+assert(length(velocity(1,:))== 1)
+
+% Does the data have right number of rows?
+Nrows_expected = length(tLLA(:,1));
+assert(length(velocity(:,1))== Nrows_expected)
+
+% Set plot
+subplot(1,2,2);
+title('LLA plot');
+set(gca,'MapCenter',[40.863982311180450 -77.834147911147213],'ZoomLevel', 15.375);
 
 %% Supporting functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
