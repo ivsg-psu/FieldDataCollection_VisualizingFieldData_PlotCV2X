@@ -220,7 +220,6 @@ if flag_do_plots == 1
 
 
     figure(fig_num);
-    clf;
 
 
     clear plotFormat

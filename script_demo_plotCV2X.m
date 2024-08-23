@@ -422,13 +422,37 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
-[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
+dirname = cat(2,'Data',filesep,'Site2*');
+dirList = dir(dirname);
+allVelocities = [];
+allLLAs = [];
+allENUs = [];
+for ith_file = 1:length(dirList)
+    csvFile = dirList(ith_file).name;
+    % csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+    [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
-% Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
-sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+    % Plot the results
+    color_vector = fcn_geometry_fillColorFromNumberOrName(ith_file);
+
+    clear plotFormat
+    plotFormat.Color = color_vector;
+    plotFormat.Marker = '.';
+    plotFormat.MarkerSize = 10;
+    plotFormat.LineStyle = '-';
+    plotFormat.LineWidth = 5;
+    h_geoplot = fcn_plotRoad_plotLL(tLLA(:,2:3), (plotFormat), (5555));
+
+
+    [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
+
+    % Test the function
+    velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+    sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+    allVelocities = [allVelocities; velocity]; %#ok<AGROW>
+    allLLAs = [allLLAs; tLLA]; %#ok<AGROW>
+    allENUs = [allENUs; tENU]; %#ok<AGROW>
+end
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -440,10 +464,55 @@ assert(length(velocity(1,:))== 1)
 Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
 
-% Set plot
+% Set GPS coordinates of RSU
+RSU_LLA = [39.99533, -79.44553];
+
+% Plot the RSU positions
 subplot(1,2,2);
 title('LLA plot');
-set(gca,'MapCenter',[40.863982311180450 -77.834147911147213],'ZoomLevel', 15.375);
+% set(gca,'MapCenter',[40.863982311180450 -77.834147911147213],'ZoomLevel', 15.375);
+plotFormat = [0 1 0];
+fcn_plotRoad_plotLL(RSU_LLA(1,1:2), (plotFormat), (fig_num));
+
+%%% Plot all the data together
+fig_num = 111111;
+figure(fig_num);
+clf;
+
+% Prep the data
+goodPlottingIndicies = ~isnan(allVelocities);
+
+rawXYIData = [allENUs(:,2:3) allVelocities];
+plotXYData = rawXYIData(goodPlottingIndicies,:);
+
+rawLLIData = [allLLAs(:,2:3) allVelocities];
+plotLLData = rawLLIData(goodPlottingIndicies,:);
+
+
+
+
+clear plotFormat
+plotFormat.LineStyle = 'none';
+plotFormat.LineWidth = 5;
+plotFormat.Marker = '.';
+plotFormat.MarkerSize = 10;
+colorMapMatrixOrString = colormap('turbo');
+Ncolors = 16;
+reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
+
+
+subplot(1,2,1);
+fcn_plotRoad_plotXYI(plotXYData, (plotFormat), (reducedColorMap), (fig_num));
+
+
+subplot(1,2,2);
+fcn_plotRoad_plotLLI(plotLLData, (plotFormat), (reducedColorMap), (fig_num));
+h_colorbar = colorbar;
+h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+% There are 2.23694 mph in 1 m/s
+colorbarValues   = round(2.23694 * linspace(min(allVelocities), max(allVelocities), Ncolors));
+h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+h_colorbar.Label.String = 'Speed (mph)';
 
 %% Supporting functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
