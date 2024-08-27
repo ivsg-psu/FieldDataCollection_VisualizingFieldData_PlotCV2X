@@ -47,7 +47,7 @@ Search for this, and you will find!
         <li><a href="#dependencies">Dependencies</li>
       </ul>
     </li>
-      <li><a href="#functions">Functions</li>
+    <li><a href="#functions">Functions</li>
       <ul>
         <li><a href="#core-functions">Core Functions</li>
         <ul>
