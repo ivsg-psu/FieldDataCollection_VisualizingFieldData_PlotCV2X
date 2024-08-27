@@ -136,7 +136,7 @@ Nrings = length(AllLatData(:,1));
 skipInterval = Nrings/4;
 
 % Prep for animation
-filename = 'fcn_PlotTestTrack_rangeRSU_circle.gif';
+filename = 'fcn_plotCV2X_rangeRSU_circle.gif';
 flagFirstTime = 1;
 
 % Clear the plot

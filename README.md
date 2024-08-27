@@ -58,6 +58,7 @@ Search for this, and you will find!
         </ul>
         <li><a href="#supporting-functions">Supporting Functions</li>
         <ul>
+          <li><a href="#fcn_plotcv2x_findnearbyindicies">fcn_plotCV2X_findNearbyIndicies - for each point, lists nearby indicies</li>
         </ul>
       </ul>
     <li><a href="#usage">Usage Examples</a></li>
@@ -84,7 +85,7 @@ You can find more information about the ADS project at :
 
 This repository was created to better visualize and plot the location and time data collected by the CV2X communication system. The functions in this repo can also be used to plot geometric shapes that represenat range of coverage and Autonomous Vehicle (as a rectangle).
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -104,7 +105,7 @@ This repository was created to better visualize and plot the location and time d
 
 4. Confirm it works! Run script_demo_plotTestTrack. If the code works, the script should run without errors. This script produces numerous example images such as those in this README file.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -120,7 +121,7 @@ The following are the top level directories within the repository:
  <li>/Utilities: Dependencies that are utilized but not implemented in this repository are placed in the Utilities directory. These can be single files but are most often other cloned repositories.</li>
 </ul>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -165,7 +166,7 @@ loads time+ENU and time+LLA data from file
   <figcaption>Example of fcn_plotCV2X_loadDataFromFile</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -184,7 +185,7 @@ given a RSU ID, plots range circles
   <figcaption>Example of fcn_plotCV2X_plotRSURangeCircle</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -215,7 +216,7 @@ Common errors include the following:
   <figcaption>Example of fcn_plotCV2X_assessTime</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -235,11 +236,30 @@ calculates velocity given tENU coordinates
   <figcaption>Example of fcn_plotCV2X_calcVelocity</figcaption>
 </pre>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
 ### Supporting functions
+
+
+#### **fcn_plotCV2X_findNearbyIndicies**
+
+for each point, lists nearby indicies
+
+
+ **FORMAT:**
+
+  ```Matlab
+  nearbyIndicies = fcn_plotCV2X_findNearbyIndicies(tENU, searchRadius, (fig_num))
+  ```
+
+<pre align="center">
+  <img src=".\Images\fcn_plotCV2X_findNearbyIndicies.jpg" alt="fcn_plotCV2X_findNearbyIndicies picture" width="500" height="400">
+  <figcaption>Example of fcn_plotCV2X_findNearbyIndicies</figcaption>
+</pre>
+
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
 
@@ -262,14 +282,14 @@ help fcn_fcnname
 
 for any function to view function details.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
@@ -278,4 +298,4 @@ Sean Brennan - <sbrennan@psu.edu>
 
 Project Link: <https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_PlotCV2X>
 
-<p align="right">(<a href="#fielddatacollection_visualizingfielddata_PlotCV2X">Back to top</a>)</p>
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>

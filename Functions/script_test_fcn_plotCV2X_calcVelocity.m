@@ -1,6 +1,6 @@
-%% script_test_fcn_plotCV2X_assessTime
+%% script_test_fcn_plotCV2X_calcVelocity
 % This is a script to exercise the function:
-% fcn_plotCV2X_assessTime.m
+% fcn_plotCV2X_calcVelocity.m
 % This function was written on 2024_08_15 by S. Brennan, sbrennan@psu.edu
 
 
@@ -15,22 +15,22 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(modeIndex(1,:))== 1)
-assert(length(modeJumps(1,:))== 1)
-assert(length(offsetCentisecondsToMode(1,:))== 1)
+assert(length(velocity(1,:))== 1)
+assert(length(angleENUradians(1,:))== 1)
+assert(length(compassHeadingDegrees(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
-assert(length(modeIndex(:,1))== Nrows_expected)
-assert(length(modeJumps(:,1))== Nrows_expected)
-assert(length(offsetCentisecondsToMode(:,1))== Nrows_expected)
+assert(length(velocity(:,1))== Nrows_expected)
+assert(length(angleENUradians(:,1))== Nrows_expected)
+assert(length(compassHeadingDegrees(:,1))== Nrows_expected)
 
 %% test 2 - collect data with no plotting
 fig_num = 2;
@@ -43,7 +43,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, []);
+[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, []);
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -51,10 +51,14 @@ assert(all(~ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(velocity(1,:))== 1)
+assert(length(angleENUradians(1,:))== 1)
+assert(length(compassHeadingDegrees(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
+assert(length(angleENUradians(:,1))== Nrows_expected)
+assert(length(compassHeadingDegrees(:,1))== Nrows_expected)
 
 
 %% test 3 - load the TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv test file
@@ -68,7 +72,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv'; % Path 
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -76,10 +80,14 @@ assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(velocity(1,:))== 1)
+assert(length(angleENUradians(1,:))== 1)
+assert(length(compassHeadingDegrees(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
+assert(length(angleENUradians(:,1))== Nrows_expected)
+assert(length(compassHeadingDegrees(:,1))== Nrows_expected)
 
 
 %% test 4 - load the TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv test file
@@ -93,7 +101,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path 
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -101,11 +109,14 @@ assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(velocity(1,:))== 1)
+assert(length(angleENUradians(1,:))== 1)
+assert(length(compassHeadingDegrees(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
-
+assert(length(angleENUradians(:,1))== Nrows_expected)
+assert(length(compassHeadingDegrees(:,1))== Nrows_expected)
 
 %% test 5 - load the TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv test file
 fig_num = 5;
@@ -118,7 +129,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path 
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Test the function
-velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcVelocity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -126,10 +137,14 @@ assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(velocity(1,:))== 1)
+assert(length(angleENUradians(1,:))== 1)
+assert(length(compassHeadingDegrees(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
+assert(length(angleENUradians(:,1))== Nrows_expected)
+assert(length(compassHeadingDegrees(:,1))== Nrows_expected)
 
 
 %% Speed test
@@ -149,7 +164,7 @@ tic;
 % Slow mode calculation - code copied from plotVehicleXYZ
 for i=1:REPS
     tstart=tic;
-    velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+    [velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
     telapsed=toc(tstart);
     minTimeSlow=min(telapsed,minTimeSlow);
     maxTimeSlow=max(telapsed,maxTimeSlow);
@@ -163,7 +178,7 @@ minTimeFast = Inf;
 tic;
 for i=1:REPS
     tstart = tic;
-    velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
+    [velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, fig_num);
     telapsed = toc(tstart);
     minTimeFast = min(telapsed,minTimeFast);
 end

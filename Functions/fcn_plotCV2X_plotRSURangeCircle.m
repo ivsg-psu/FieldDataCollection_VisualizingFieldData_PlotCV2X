@@ -50,7 +50,8 @@ function [h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = f
 %
 % DEPENDENCIES:
 %
-%      (none)
+%      fcn_plotCV2X_loadRSULLAs
+%      fcn_plotRoad_plotLLCircle
 %
 % EXAMPLES:
 %
@@ -60,8 +61,13 @@ function [h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = f
 %
 %       for a full test suite.
 %
-% This function was written on 2024_07_10 by A. Kim
-% Questions or comments? sbrennan@psu.edu % Abel's email
+% This function was written on 2024_08_15 by S. Brennan, working from A.
+% Kim's version in plotTestTrack
+% Questions or comments? sbrennan@psu.edu 
+
+% 2024_08_25 - S. Brennan
+% -- first write of the code
+
 
 %% Debugging and Input checks
 
@@ -77,11 +83,11 @@ else
     % Check to see if we are externally setting debug mode to be "on"
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 1; % Flag to perform input checking
-    MATLABFLAG_PlotTestTrack_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_PlotTestTrack_FLAG_CHECK_INPUTS");
-    MATLABFLAG_PlotTestTrack_FLAG_DO_DEBUG = getenv("MATLABFLAG_PlotTestTrack_FLAG_DO_DEBUG");
-    if ~isempty(MATLABFLAG_PlotTestTrack_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_PlotTestTrack_FLAG_DO_DEBUG)
-        flag_do_debug = str2double(MATLABFLAG_PlotTestTrack_FLAG_DO_DEBUG);
-        flag_check_inputs  = str2double(MATLABFLAG_PlotTestTrack_FLAG_CHECK_INPUTS);
+    MATLABFLAG_PLOTCV2X_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_PLOTCV2X_FLAG_CHECK_INPUTS");
+    MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG = getenv("MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_PLOTCV2X_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_PLOTCV2X_FLAG_CHECK_INPUTS);
     end
 end
 
@@ -111,7 +117,7 @@ end
 if 0 == flag_max_speed
     if flag_check_inputs == 1
         % Are there the right number of inputs?
-        narginchk(2,3);
+        narginchk(1,3);
     end
 end
 
@@ -149,22 +155,8 @@ end
 % Determine the radii
 radius = 1000;
 
-switch RSUid
-    case 1 % PSU test track, Pendulum
-        LLcenter = [40.86488, -77.83035, 0];
-    case 2 % PSU test track, pole by bridge
-        LLcenter = [40.863873, -77.837215, 0];
-    case 3 % PSU test track, pole by handling area
-        LLcenter = [40.863145, -77.83499, 0];
-    case 21
-        % Pittsburgh site 1
-        LLcenter = [40.43073, -79.87261, 0];
-
-    otherwise
-        warning('on','backtrace');
-        warning('An unkown RSUid is detected - throwing an error.')
-        error('Unknown RSUid input detected')
-end
+% Find the LL center for this RSU
+LLcenter = fcn_plotCV2X_loadRSULLAs(RSUid, ([]), (-1));
 
 
 %% Any debugging?

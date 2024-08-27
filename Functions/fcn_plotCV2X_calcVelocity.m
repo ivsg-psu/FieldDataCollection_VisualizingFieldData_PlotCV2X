@@ -1,12 +1,19 @@
-function velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, varargin)
+function [velocities, angleENUradians, compassHeadingDegrees] = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, varargin)
 %fcn_plotCV2X_calcVelocity  calculates velocity given tENU coordinates
 %
 % this function calculates the apparent velocity of the data given tENU
-% coordinate inputs. 
+% coordinate inputs. Velocity is calculated from the difference from the
+% previous point to the curent point in distance, divided by time. The
+% first point, because there is no previous values, is calculated using the
+% difference ahead e.g. it is a repeat of the 2nd point.
+%
+% The angles of the velocity vectors are also output in either normal
+% cartesian format (angleENUradians) or compass format (compassHeadingDegrees). Note
+% that: compassHeadingDegrees = (90 - angleENUradians*180/pi). 
 %
 % FORMAT:
 %
-%       velocity = fcn_plotCV2X_calcVelocity(tENU, (fig_num))
+%       [velocities, angleENUradians, compassHeadingDegrees] = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, (fig_num))
 %
 % INPUTS:
 %
@@ -31,12 +38,20 @@ function velocity = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCenti
 %
 % OUTPUTS:
 %
-%      velocity: the velocity in m/s as a [Nx1] vector. The last velocity
+%      velocities: the velocity in m/s as a [Nx1] vector. The last velocity
 %      is repeated so that velocity is the same length vector as tENU
+%
+%      angleENUradians: the angle, in radians, of the velocity vector
+%      relative to the east axis, measured positive counter clockwise.
+%
+%      compassHeadingDegrees: the angle, in degrees, of the velocity vector
+%      relative to North, measured positive clockwise
 %
 % DEPENDENCIES:
 %
-%      (none)
+%      fcn_plotRoad_reduceColorMap
+%      fcn_plotRoad_plotXYI
+%      fcn_plotRoad_plotLLI
 %
 % EXAMPLES:
 %
@@ -78,9 +93,9 @@ end
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978;
+    debug_fig_num = 999978; %#ok<NASGU>
 else
-    debug_fig_num = [];
+    debug_fig_num = []; %#ok<NASGU>
 end
 
 %% check input arguments
@@ -107,19 +122,12 @@ end
 % Does user want to specify fig_num?
 flag_do_plots = 0;
 fig_num = []; % Initialize the figure number to be empty
-if (0==flag_max_speed) && (2 <= nargin)
+if (0==flag_max_speed) && (5 <= nargin)
     temp = varargin{end};
     if ~isempty(temp)
         fig_num = temp;
         flag_do_plots = 1;
     end
-end
-
-% Setup figures if there is debugging
-if flag_do_debug
-    fig_debug = 9999;
-else
-    fig_debug = []; %#ok<*NASGU>
 end
 
 
@@ -135,17 +143,23 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Ndata = length(tENU(:,1));
 
+% Calculate vectors
+differenceVectors = diff(tENU(:,2:3));
+
+% Repeat the first one as the difference is not defined for the first point
+differenceVectors = [differenceVectors(1,:); differenceVectors];
+
 % Calculate ENU distances
-XYdistances = real(sum(diff(tENU(:,2:3)).^2,2).^0.5);
-XYdistances = [XYdistances(1); XYdistances];
+XYdistances = real(sum(differenceVectors.^2,2).^0.5);
 
 % Check inputs (debugging)
 if 1==flag_do_debug
     disp([tENU XYdistances offsetCentisecondsToMode modeIndex])
 end
 
-% Initialize output vector
-velocity = nan(Ndata,1);
+% Initialize output vectors
+velocities = nan(Ndata,1);
+angleENUradians = nan(Ndata,1);
 
 % Time deltas are not valid across mode changes, so we loop through modes
 % and calculate time/distance for each. As well, keep track of the
@@ -168,8 +182,10 @@ for ith_mode = 1:Nmodes
         % Clean up times - looking for outliers
         thisModeDeltaTimes = diff(tENU(indicies_thisMode,1));
         thisModeDeltatimes = [thisModeDeltaTimes(1); thisModeDeltaTimes];
+
+
         goodIndiciesTimes = fcn_INTERNAL_removeTimeOutliers(thisModeDeltatimes);
-        meanDeltaT = mean(thisModeDeltatimes(goodIndiciesTimes));
+        % meanDeltaT = mean(thisModeDeltatimes(goodIndiciesTimes));
         timeVariances(ith_mode,1) = std(thisModeDeltatimes(goodIndiciesTimes));
         
         if any(thisModeDeltatimes(goodIndiciesTimes)<0.01)
@@ -178,7 +194,15 @@ for ith_mode = 1:Nmodes
             error('Small or negative time differences encountered. Cannot calculate velocity.');
         end
 
-        thisModeVelocities = thisModeDistances./thisModeDeltatimes;
+
+        % Decide whether to use true time, or locked time. The above is
+        % true time
+        if 1==0
+            thisModeVelocities = thisModeDistances./thisModeDeltatimes;
+        else
+            thisModeVelocities = thisModeDistances./0.1;
+        end
+
 
         % Check results
         if 1==flag_do_debug
@@ -188,11 +212,26 @@ for ith_mode = 1:Nmodes
         goodIndicies = goodIndiciesTimes.*goodIndiciesDistances;
         goodIndicies_thisMode = indicies_thisMode(find(goodIndicies)); %#ok<FNDSB>
 
-        % Calculate velocities
-        velocity(goodIndicies_thisMode) = thisModeVelocities(find(goodIndicies)); %#ok<FNDSB>
+        % Calculate velocities, angles, headings
+        velocities(goodIndicies_thisMode) = thisModeVelocities(find(goodIndicies)); %#ok<FNDSB>
+        angleENUradians(goodIndicies_thisMode) = atan2(differenceVectors(goodIndicies_thisMode,2),differenceVectors(goodIndicies_thisMode,1));
     end
 end
 
+%% Remove singleton velocities
+% These are velocities where there are not adjacent points
+if 1==1
+    currentIndicies = find(~isnan(velocities));
+    goodIndicies = [0; currentIndicies; Ndata+1];    
+    indiciesIsolated = ~ismember((currentIndicies-1),goodIndicies).* ~ismember((currentIndicies+1),goodIndicies);
+    currentIndiciesIsolated = currentIndicies(find(indiciesIsolated)); %#ok<FNDSB>
+
+    velocities(currentIndiciesIsolated) = nan;
+    angleENUradians(currentIndiciesIsolated) = nan;
+end
+
+
+compassHeadingDegrees = mod((90 - angleENUradians*180/pi),360);
 
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,16 +250,23 @@ end
 if flag_do_plots == 1
 
 
-    % Prep the data
-    goodPlottingIndicies = ~isnan(velocity);
-    rawXYData = [tENU(:,2:3) velocity];
-    plotXYData = rawXYData(goodPlottingIndicies,:);
-    rawLLData = [tLLA(:,2:3) velocity];
-    plotLLData = rawLLData(goodPlottingIndicies,:);
+    % Prep the data for plotting
+    goodPlottingIndicies = ~isnan(velocities);
+    goodTime = nan(size(velocities));
+    goodTime(goodPlottingIndicies,1) = tENU(goodPlottingIndicies,1);
+
+    rawXYVData = [tENU(:,2:3) velocities];    
+    rawXYHData = [tENU(:,2:3) compassHeadingDegrees/360];    
+    plotXYVData = rawXYVData(goodPlottingIndicies,:);
+    plotXYHData = rawXYHData(goodPlottingIndicies,:);
+
+    rawLLVData = [tLLA(:,2:3) velocities];
+    rawLLHData = [tLLA(:,2:3) compassHeadingDegrees/360];
+    plotLLVData = rawLLVData(goodPlottingIndicies,:);
+    plotLLHData = rawLLHData(goodPlottingIndicies,:);
 
 
     figure(fig_num);
-
 
     clear plotFormat
     plotFormat.LineStyle = 'none';
@@ -230,14 +276,100 @@ if flag_do_plots == 1
     colorMapMatrixOrString = colormap('turbo');
     Ncolors = 16;
     reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
+    fullWrapAroundColorMap = hsv2rgb([linspace(0,1,256)',ones(256,2)]);
+    reducedWrapAroundColorMap = hsv2rgb([linspace(0,1,Ncolors)',ones(Ncolors,2)]);
 
 
-    subplot(1,2,1);
-    fcn_plotRoad_plotXYI(plotXYData, (plotFormat), (reducedColorMap), (fig_num));    
+    subplot(3,2,1);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI([goodTime velocities velocities], (plotFormat), (reducedColorMap), (fig_num));
+    title('Velocity')
+    xlabel('Time [s]')
+    ylabel('Velocity [m/s]')
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
 
 
-    subplot(1,2,2);
-    fcn_plotRoad_plotLLI(plotLLData, (plotFormat), (reducedColorMap), (fig_num));    
+    subplot(3,2,2);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI([goodTime compassHeadingDegrees velocities], (plotFormat), (reducedColorMap), (fig_num));
+    title('Compass Heading')
+    xlabel('Time [s]')
+    ylabel('Heading [deg]')
+    axis("normal");
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+
+    subplot(3,2,3);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI(plotXYVData, (plotFormat), (reducedColorMap), (fig_num));    
+    title('ENU velocities')
+    xlabel('East [m]')
+    ylabel('North [m]')
+
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+
+    subplot(3,2,4);
+    fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));    
+    colormap(gca,colorMapMatrixOrString);
+    title('LLA velocities')
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+
+    subplot(3,2,5);
+    fcn_plotRoad_plotXYI(plotXYHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));    
+    colormap(gca,fullWrapAroundColorMap);
+    title('ENU headings')
+    xlabel('East [m]')
+    ylabel('North [m]')
+
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(linspace(0,360, Ncolors),-1);
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Heading (deg)';
+
+
+    subplot(3,2,6);
+    fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));  
+    colormap(gca,fullWrapAroundColorMap);
+    title('LLA headings')
+
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(linspace(0,360, Ncolors),-1);
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Heading (deg)';
+
+
 
 end
 
