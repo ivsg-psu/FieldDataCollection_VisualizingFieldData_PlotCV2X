@@ -18,7 +18,10 @@ function [modeIndex, modeJumps, offsetCentisecondsToMode] = fcn_plotCV2X_assessT
 %
 % INPUTS:
 %
-%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4] vector
+%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4]
+%      vector. Note: this is only used for plotting. Set as an empty vector
+%      if this is not available, and the plot will not be created but the
+%      function will still operate. 
 %
 %      tENU: the [time East North Up] data as an [Nx4] vector, using the
 %      origin as set in the main demo script
@@ -230,8 +233,10 @@ if flag_do_plots == 1
         subplot(1,2,1);
         fcn_plotRoad_plotTraceXY(tENU(currentIndicies,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
-        subplot(1,2,2);
-        fcn_plotRoad_plotTraceLL(tLLA(currentIndicies,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+        if ~isempty(tLLA)
+            subplot(1,2,2);
+            fcn_plotRoad_plotTraceLL(tLLA(currentIndicies,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+        end
     end
 
     % Plot the bad indicies in grey

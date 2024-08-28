@@ -17,7 +17,10 @@ function [velocities, angleENUradians, compassHeadingDegrees] = fcn_plotCV2X_cal
 %
 % INPUTS:
 %
-%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4] vector
+%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4]
+%      vector. Note: this is only used for plotting. Set as an empty vector
+%      if this is not available, and the plot will not be created but the
+%      function will still operate. 
 %
 %      tENU: the [time East North Up] data as an [Nx4] vector, using the
 %      origin as set in the main demo script
@@ -260,11 +263,12 @@ if flag_do_plots == 1
     plotXYVData = rawXYVData(goodPlottingIndicies,:);
     plotXYHData = rawXYHData(goodPlottingIndicies,:);
 
-    rawLLVData = [tLLA(:,2:3) velocities];
-    rawLLHData = [tLLA(:,2:3) compassHeadingDegrees/360];
-    plotLLVData = rawLLVData(goodPlottingIndicies,:);
-    plotLLHData = rawLLHData(goodPlottingIndicies,:);
-
+    if ~isempty(tLLA)
+        rawLLVData = [tLLA(:,2:3) velocities];
+        rawLLHData = [tLLA(:,2:3) compassHeadingDegrees/360];
+        plotLLVData = rawLLVData(goodPlottingIndicies,:);
+        plotLLHData = rawLLHData(goodPlottingIndicies,:);
+    end
 
     figure(fig_num);
 
@@ -327,18 +331,19 @@ if flag_do_plots == 1
     h_colorbar.Label.String = 'Speed (mph)';
 
 
-    subplot(3,2,4);
-    fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));    
-    colormap(gca,colorMapMatrixOrString);
-    title('LLA velocities')
+    if ~isempty(tLLA)
+        subplot(3,2,4);
+        fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));
+        colormap(gca,colorMapMatrixOrString);
+        title('LLA velocities')
 
-    h_colorbar = colorbar;
-    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
-    % There are 2.23694 mph in 1 m/s
-    colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
-    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
-    h_colorbar.Label.String = 'Speed (mph)';
-
+        h_colorbar = colorbar;
+        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        % There are 2.23694 mph in 1 m/s
+        colorbarValues   = round(2.23694 * linspace(min(velocities), max(velocities), Ncolors));
+        h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+        h_colorbar.Label.String = 'Speed (mph)';
+    end
 
     subplot(3,2,5);
     fcn_plotRoad_plotXYI(plotXYHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));    
@@ -355,20 +360,20 @@ if flag_do_plots == 1
     h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
     h_colorbar.Label.String = 'Heading (deg)';
 
+    if ~isempty(tLLA)
+        subplot(3,2,6);
+        fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));
+        colormap(gca,fullWrapAroundColorMap);
+        title('LLA headings')
 
-    subplot(3,2,6);
-    fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));  
-    colormap(gca,fullWrapAroundColorMap);
-    title('LLA headings')
 
-
-    h_colorbar = colorbar;
-    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
-    % There are 2.23694 mph in 1 m/s
-    colorbarValues   = round(linspace(0,360, Ncolors),-1);
-    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
-    h_colorbar.Label.String = 'Heading (deg)';
-
+        h_colorbar = colorbar;
+        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        % There are 2.23694 mph in 1 m/s
+        colorbarValues   = round(linspace(0,360, Ncolors),-1);
+        h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+        h_colorbar.Label.String = 'Heading (deg)';
+    end
 
 
 end

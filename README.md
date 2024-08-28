@@ -55,10 +55,11 @@ Search for this, and you will find!
           <li><a href="#fcn_plotcv2x_rangersu_circle">fcn_plotCV2X_plotRSURangeCircle - given a RSU ID, plots range circles</li>
           <li><a href="#fcn_plotcv2x_assesstime">fcn_plotCV2X_assessTime - classifies the time vector of the data for errors</li>
           <li><a href="#fcn_plotcv2x_calcvelocity">fcn_plotCV2X_calcVelocity - calculates velocity given tENU coordinates</li>
+          <li><a href="#fcn_plotcv2x_calcspeeddisparity">fcn_plotCV2X_calcSpeedDisparity - calculates the difference in velocity between each point and nearby points</li>
         </ul>
         <li><a href="#supporting-functions">Supporting Functions</li>
         <ul>
-          <li><a href="#fcn_plotcv2x_findnearbyindicies">fcn_plotCV2X_findNearbyIndicies - for each point, lists nearby indicies</li>
+          <li><a href="#fcn_plotcv2x_findnearpoints">fcn_plotCV2X_findNearPoints - for each point, lists nearby indicies</li>
         </ul>
       </ul>
     <li><a href="#usage">Usage Examples</a></li>
@@ -220,7 +221,6 @@ Common errors include the following:
 
 ***
 
-
 #### **fcn_plotCV2X_calcVelocity**
 
 calculates velocity given tENU coordinates
@@ -240,10 +240,29 @@ calculates velocity given tENU coordinates
 
 ***
 
+#### **fcn_plotCV2X_calcSpeedDisparity**
+
+calculates the difference in velocity between each point and nearby points
+
+ **FORMAT:**
+
+  ```Matlab
+  speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num))
+  ```
+
+<pre align="center">
+  <img src=".\Images\fcn_plotCV2X_calcSpeedDisparity.jpg" alt="fcn_plotCV2X_calcSpeedDisparity picture" width="800" height="400">
+  <figcaption>Example of fcn_plotCV2X_calcSpeedDisparity</figcaption>
+</pre>
+
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
+
+***
+
 ### Supporting functions
 
 
-#### **fcn_plotCV2X_findNearbyIndicies**
+#### **fcn_plotCV2X_findNearPoints**
 
 for each point, lists nearby indicies
 
@@ -251,12 +270,12 @@ for each point, lists nearby indicies
  **FORMAT:**
 
   ```Matlab
-  nearbyIndicies = fcn_plotCV2X_findNearbyIndicies(tENU, searchRadius, (fig_num))
+  nearbyIndicies = fcn_plotCV2X_findNearPoints(tENU, searchRadiusAndAngles, (fig_num))
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotCV2X_findNearbyIndicies.jpg" alt="fcn_plotCV2X_findNearbyIndicies picture" width="500" height="400">
-  <figcaption>Example of fcn_plotCV2X_findNearbyIndicies</figcaption>
+  <img src=".\Images\fcn_plotCV2X_findNearPoints.jpg" alt="fcn_plotCV2X_findNearPoints picture" width="500" height="400">
+  <figcaption>Example of fcn_plotCV2X_findNearPoints</figcaption>
 </pre>
 
 <p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>

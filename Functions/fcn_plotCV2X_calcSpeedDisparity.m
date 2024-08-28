@@ -1,9 +1,10 @@
 function speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, varargin)
-%fcn_plotCV2X_findNearbyIndicies  for each point, lists nearby indicies
+%fcn_plotCV2X_calcSpeedDisparity  calculates the difference in velocity
+%between each point and nearby points
 %
 % FORMAT:
 %
-%       speedDisparity = fcn_plotCV2X_findNearbyIndicies(tENU, searchRadius, (fig_num))
+%       speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num))
 %
 % INPUTS:
 %
@@ -40,7 +41,7 @@ function speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadi
 %
 %       See the script:
 %
-%       script_test_fcn_plotCV2X_findNearbyIndicies
+%       script_test_fcn_plotCV2X_calcSpeedDisparity
 %
 % This function was written on 2024_08_26 by Sean Brennan
 % Questions or comments? sbrennan@psu.edu
@@ -129,23 +130,48 @@ end
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Calculate the velocities, angles, and heading
-[velocity, angleENUradians, compassHeadingDegrees]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
-
+[velocity, angleENUradians, ~]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
 
 % Find the nearest neighbors
+nearbyIndicies  = fcn_plotCV2X_findNearPoints(tENU, searchRadiusAndAngles, (-1));
 
 % Initialize the output
 Ndata = length(tENU(:,1));
 speedDisparity = nan(Ndata,1);
 
-
-
-allXY = tENU(:,2:3);
+% Loop through each point
 for ith_point = 1:Ndata
-    this_pointXY = tENU(ith_point,2:3);
-    allDistances = real(sum((ones(Ndata,1)*this_pointXY - allXY).^2,2).^0.5);
-    closeIndicies = find(allDistances<=searchRadiusAndAngles);
-    speedDisparity{ith_point} = closeIndicies(closeIndicies~=ith_point);
+    this_point_nearbyIndicies = nearbyIndicies{ith_point};
+
+    if ~isempty(this_point_nearbyIndicies)
+        % How many neighbors are there?
+        Nnearby = length(this_point_nearbyIndicies);
+
+        % Get a neighbor point's angles and velocities
+        nearby_angles = angleENUradians(this_point_nearbyIndicies,1);
+        nearby_velocity_magnitudes = velocity(this_point_nearbyIndicies,1);
+
+        % Calculate the velocity vectors for all neighbor points
+        nearby_velocities = nearby_velocity_magnitudes.*[cos(nearby_angles) sin(nearby_angles)];
+
+        % Get this point's angle and velocity
+        this_angle = angleENUradians(ith_point,1);
+        this_velocity_magnitude = velocity(ith_point,1);
+
+        % Make sure this point is defined - it might be nan values!
+        if ~isnan(this_angle) && ~isnan(this_velocity_magnitude)
+
+            % Calculate the velocity vector for this point
+            this_pointVelocity = this_velocity_magnitude*[cos(this_angle) sin(this_angle)];
+
+            % Find the difference in the velocities as the distance between
+            % the ends of the velocity vectors
+            allDifferences= real(sum((ones(Nnearby,1)*this_pointVelocity - nearby_velocities).^2,2).^0.5);
+
+            % Keep the maximum velocity difference
+            speedDisparity(ith_point,1) = max(allDifferences);
+        end
+    end
 end
 
 %% Any debugging?
@@ -160,52 +186,61 @@ end
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% before opeaning up a figure, lets start to capture the frames for an
-% animation if the user has entered a name for the mov file
+
 if flag_do_plots == 1
+    % Prep the data for plotting
+    goodPlottingIndicies = ~isnan(speedDisparity);
+
+    rawXYVData = [tENU(:,2:3) speedDisparity];    
+    plotXYVData = rawXYVData(goodPlottingIndicies,:);
+
+    if ~isempty(tLLA)
+        rawLLVData = [tLLA(:,2:3) speedDisparity];
+        plotLLVData = rawLLVData(goodPlottingIndicies,:);
+    end
 
     figure(fig_num);
-    
-    % Pick a random value to plot
-    randomIndex = round(rand*(Ndata-1))+1;
-    randomIndex = min(Ndata,max(1,randomIndex));
 
-    
-    % Plot the input data
     clear plotFormat
-    plotFormat.Color = [0 0 0];
+    plotFormat.LineStyle = 'none';
+    plotFormat.LineWidth = 5;
     plotFormat.Marker = '.';
     plotFormat.MarkerSize = 10;
-    plotFormat.LineStyle = 'none';
-    plotFormat.LineWidth = 3;
-    fcn_plotRoad_plotXY((tENU(:,2:3)), (plotFormat), (fig_num));
+    colorMapMatrixOrString = colormap('turbo');
+    Ncolors = 16;
+    reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
 
-    % Plot the test point
-    plotFormat.Color = [0 0 1];
-    plotFormat.MarkerSize = 50;
-    fcn_plotRoad_plotXY((tENU(randomIndex,2:3)), (plotFormat), (fig_num));
 
-    % Plot the bounding circle
-    Nangles = 45;
-    theta = linspace(0, 2*pi, Nangles)'; 
-    CircleXData = ones(Nangles,1)*tENU(randomIndex,2) + searchRadiusAndAngles*cos(theta);
-    CircleYData = ones(Nangles,1)*tENU(randomIndex,3) + searchRadiusAndAngles*sin(theta);
-    plotFormat.Marker = 'none';
-    plotFormat.Color = [1 0 1];
-    plotFormat.MarkerSize = 10;
-    plotFormat.LineStyle = '-';
-    plotFormat.LineWidth = 3;
-    fcn_plotRoad_plotXY([CircleXData CircleYData], (plotFormat), (fig_num));
+    subplot(1,2,1);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI(plotXYVData, (plotFormat), (reducedColorMap), (fig_num));    
+    title('ENU velocities')
+    xlabel('East [m]')
+    ylabel('North [m]')
 
-    % Plot the points inside the bounding circle
-    indicesNearby = speedDisparity{randomIndex};
-    plotFormat.Color = [1 0 1];
-    plotFormat.Marker = 'o';
-    plotFormat.MarkerSize = 10;
-    plotFormat.LineStyle = 'none';
-    plotFormat.LineWidth = 1;
-    fcn_plotRoad_plotXY((tENU(indicesNearby,2:3)), (plotFormat), (fig_num));
-    
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+
+    if ~isempty(tLLA)
+        subplot(1,2,2);
+        fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));
+        colormap(gca,colorMapMatrixOrString);
+        title('LLA velocities')
+
+        h_colorbar = colorbar;
+        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        % There are 2.23694 mph in 1 m/s
+        colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Ncolors));
+        h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+        h_colorbar.Label.String = 'Speed (mph)';
+    end
+
 
 end
 

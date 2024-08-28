@@ -43,9 +43,9 @@ library_folders{ith_library} = {'Functions','Data'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/archive/refs/tags/DebugTools_v2023_04_22.zip';
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'GeometryClass_v2024_08_16';
+library_name{ith_library}    = 'GeometryClass_v2024_08_28';
 library_folders{ith_library} = {'Functions'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_GeomClassLibrary/archive/refs/tags/GeometryClass_v2024_08_16.zip';
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_GeomClassLibrary/archive/refs/tags/GeometryClass_v2024_08_28.zip';
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PlotRoad_v2024_08_19';
@@ -114,6 +114,7 @@ hard_coded_reference_unit_tangent_vector_LC_south_lane = [0.794630317120972   0.
 %% Set environment flags that define the ENU origin
 % This sets the "center" of the ENU coordinate system for all plotting
 % functions
+
 % Location for Test Track base station
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
@@ -124,10 +125,10 @@ setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 % setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-79.87261');
 % setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 
-
-setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LATITUDE','40.86368573');
-setenv('MATLABFLAG_PLOTCV2X_REFERENCE_LONGITUDE','-77.83592832');
-setenv('MATLABFLAG_PLOTCV2X_REFERENCE_ALTITUDE','344.189');
+% % Location for Site 2, Falling water
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','39.995339');
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-79.445472');
+% setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 
 
 %% Set environment flags for plotting
@@ -515,6 +516,37 @@ colorbarValues   = round(2.23694 * linspace(min(allVelocities), max(allVelocitie
 h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
 h_colorbar.Label.String = 'Speed (mph)';
 
+%% fcn_plotCV2X_calcSpeedDisparity  
+% calculates the difference in velocity between each point and nearby points
+%
+% FORMAT:
+%
+%       speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num))
+
+fig_num = 5;
+figure(fig_num);
+clf;
+
+% Load the data
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
+
+% Test the function
+searchRadiusAndAngles = 20;
+speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Does the data have right number of columns?
+assert(length(speedDisparity(1,:))== 1)
+
+% Does the data have right number of rows?
+Nrows_expected = length(tLLA(:,1));
+assert(length(speedDisparity(:,1))== Nrows_expected)
+
+
 %% Supporting functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -530,9 +562,13 @@ h_colorbar.Label.String = 'Speed (mph)';
 % https://patorjk.com/software/taag/#p=display&f=Big&t=Supporting%20%20%20Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-%% fcn_plotCV2X_findNearbyIndicies 
+%% fcn_plotCV2X_findNearPoints  
 % for each point, lists nearby indicies
-% nearbyIndicies = fcn_plotCV2X_findNearbyIndicies(tENU, searchRadius, (fig_num))
+%
+% FORMAT:
+%
+%       nearbyIndicies = fcn_plotCV2X_findNearPoints(tENU, searchRadiusAndAngles, (fig_num))
+
 fig_num = 11;
 figure(fig_num);
 clf;
@@ -542,9 +578,9 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
-searchRadius = 50;
-nearbyIndicies  = fcn_plotCV2X_findNearbyIndicies(tENU, searchRadius, (fig_num));
-title({sprintf('Example %.0d: showing fcn_plotCV2X_findNearbyIndicies',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+searchRadiusAndAngles = 50;
+nearbyIndicies  = fcn_plotCV2X_findNearPoints(tENU, searchRadiusAndAngles, (fig_num));
+title({sprintf('Example %.0d: showing fcn_plotCV2X_findNearPoints',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
