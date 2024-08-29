@@ -1,4 +1,4 @@
-function speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, varargin)
+function [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, varargin)
 %fcn_plotCV2X_calcSpeedDisparity  calculates the difference in velocity
 %between each point and nearby points
 %
@@ -32,6 +32,21 @@ function speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadi
 %      speedDisparity: an [Nx1] vector of the speed disparity between the
 %      current point and all other points near to the nth point, within the
 %      searchRadius, and if specified, within the differences in headings.
+%
+%      meanVelocityVector: an [Nx2] vector of the mean velocity vector around the
+%      current point including the current point and all other points near
+%      to the nth point, within the searchRadius, and if specified, within
+%      the differences in headings.
+%
+%      stdVelocityVector: an [Nx2] vector of the stdDev in the velocity
+%      vector around the current point including the current point and all
+%      other points near to the nth point, within the searchRadius, and if
+%      specified, within the differences in headings.
+%
+%      Mspeeds: an [Nx1] vector of the count of M points around the current
+%      point including the current point and all other points near to the
+%      nth point, within the searchRadius, and if specified, within the
+%      differences in headings.
 %
 % DEPENDENCIES:
 %
@@ -130,14 +145,18 @@ end
 [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
 
 % Calculate the velocities, angles, and heading
-[velocity, angleENUradians, ~]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
+[velocities, angleENUradians, ~]  = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
 
 % Find the nearest neighbors
 nearbyIndicies  = fcn_plotCV2X_findNearPoints(tENU, searchRadiusAndAngles, (-1));
 
-% Initialize the output
+% Initialize the outputs
 Ndata = length(tENU(:,1));
 speedDisparity = nan(Ndata,1);
+velocityVectors   = velocities.*[cos(angleENUradians) sin(angleENUradians)];
+meanVelocityVector   = velocityVectors;
+stdVelocityVector    = inf(Ndata,2);
+Mspeeds        = ones(Ndata,1);
 
 % Loop through each point
 for ith_point = 1:Ndata
@@ -145,31 +164,34 @@ for ith_point = 1:Ndata
 
     if ~isempty(this_point_nearbyIndicies)
         % How many neighbors are there?
-        Nnearby = length(this_point_nearbyIndicies);
-
-        % Get a neighbor point's angles and velocities
-        nearby_angles = angleENUradians(this_point_nearbyIndicies,1);
-        nearby_velocity_magnitudes = velocity(this_point_nearbyIndicies,1);
+        Nnearby = length(this_point_nearbyIndicies);        
 
         % Calculate the velocity vectors for all neighbor points
-        nearby_velocities = nearby_velocity_magnitudes.*[cos(nearby_angles) sin(nearby_angles)];
+        nearby_velocities = velocityVectors(this_point_nearbyIndicies,:);
 
         % Get this point's angle and velocity
         this_angle = angleENUradians(ith_point,1);
-        this_velocity_magnitude = velocity(ith_point,1);
+        this_velocity_magnitude = velocities(ith_point,1);
 
         % Make sure this point is defined - it might be nan values!
         if ~isnan(this_angle) && ~isnan(this_velocity_magnitude)
 
             % Calculate the velocity vector for this point
-            this_pointVelocity = this_velocity_magnitude*[cos(this_angle) sin(this_angle)];
+            this_pointVelocity = velocityVectors(ith_point,:);
 
             % Find the difference in the velocities as the distance between
             % the ends of the velocity vectors
             allDifferences= real(sum((ones(Nnearby,1)*this_pointVelocity - nearby_velocities).^2,2).^0.5);
 
-            % Keep the maximum velocity difference
+            % Keep the maximum velocity difference, and save all the
+            % outputs
+            all_velocities = [nearby_velocities; this_pointVelocity];
             speedDisparity(ith_point,1) = max(allDifferences);
+
+            % Find mean and standard deviations of the velocities
+            meanVelocityVector(ith_point,:) = mean(all_velocities,1,'omitnan');
+            stdVelocityVector(ith_point,:)  = std(all_velocities,1,'omitnan');
+            Mspeeds(ith_point,1) = Nnearby+1;
         end
     end
 end
@@ -190,13 +212,23 @@ end
 if flag_do_plots == 1
     % Prep the data for plotting
     goodPlottingIndicies = ~isnan(speedDisparity);
+    velocityMeans = sum(meanVelocityVector.^2,2).^0.5;
+    velocityStds = sum(stdVelocityVector.^2,2).^0.5;
 
-    rawXYVData = [tENU(:,2:3) speedDisparity];    
-    plotXYVData = rawXYVData(goodPlottingIndicies,:);
+    rawXYVelocitydisparityData  = [tENU(:,2:3) speedDisparity];    
+    rawXYVelocitymeanData       = [tENU(:,2:3) velocityMeans];    
+    rawXYVelocitystdData        = [tENU(:,2:3) velocityStds];    
+    plotXYVelocitydisparityData = rawXYVelocitydisparityData(goodPlottingIndicies,:);
+    plotXYVelocitymeanData      = rawXYVelocitymeanData(goodPlottingIndicies,:);
+    plotXYVelocitystdData       = rawXYVelocitystdData(goodPlottingIndicies,:);
 
     if ~isempty(tLLA)
-        rawLLVData = [tLLA(:,2:3) speedDisparity];
-        plotLLVData = rawLLVData(goodPlottingIndicies,:);
+        rawLLVelocitydisparityData  = [tLLA(:,2:3) speedDisparity];
+        rawLLVelocitymeanData       = [tLLA(:,2:3) velocityMeans];
+        rawLLVelocitystdData        = [tLLA(:,2:3) velocityStds];
+        plotLLVelocitydisparityData = rawLLVelocitydisparityData(goodPlottingIndicies,:);
+        plotLLVelocitymeanData      = rawLLVelocitymeanData(goodPlottingIndicies,:);
+        plotLLVelocitystdData       = rawLLVelocitystdData(goodPlottingIndicies,:);
     end
 
     figure(fig_num);
@@ -210,11 +242,12 @@ if flag_do_plots == 1
     Ncolors = 16;
     reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
 
-
-    subplot(1,2,1);
+    %%%%%%%%%%%%%
+    % Plot velocities in ENU
+    subplot(3,2,1);
     colormap(gca,colorMapMatrixOrString);
-    fcn_plotRoad_plotXYI(plotXYVData, (plotFormat), (reducedColorMap), (fig_num));    
-    title('ENU velocities')
+    fcn_plotRoad_plotXYI(plotXYVelocitydisparityData, (plotFormat), (reducedColorMap), (fig_num));    
+    title('ENU velocity disparities')
     xlabel('East [m]')
     ylabel('North [m]')
 
@@ -226,12 +259,15 @@ if flag_do_plots == 1
     h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
     h_colorbar.Label.String = 'Speed (mph)';
 
+    %%%%%%%%%%%%%
+    % Plot velocities in LLA
 
     if ~isempty(tLLA)
-        subplot(1,2,2);
-        fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));
+        subplot(3,2,2);
+        fcn_plotRoad_plotLLI(plotLLVelocitydisparityData, (plotFormat), (reducedColorMap), (fig_num));
+        set(gca,'MapCenter',plotLLVelocitydisparityData(1,1:2));
         colormap(gca,colorMapMatrixOrString);
-        title('LLA velocities')
+        title('LLA velocity disparities')
 
         h_colorbar = colorbar;
         h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
@@ -241,6 +277,77 @@ if flag_do_plots == 1
         h_colorbar.Label.String = 'Speed (mph)';
     end
 
+
+    %%%%%%%%%%%%%
+    % Plot velocity means in ENU
+    subplot(3,2,3);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI(plotXYVelocitymeanData, (plotFormat), (reducedColorMap), (fig_num));    
+    title('ENU mean velocities')
+    xlabel('East [m]')
+    ylabel('North [m]')
+
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Ncolors));
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+    %%%%%%%%%%%%%
+    % Plot velocity means in LLA
+
+    if ~isempty(tLLA)
+        subplot(3,2,4);
+        fcn_plotRoad_plotLLI(plotLLVelocitymeanData, (plotFormat), (reducedColorMap), (fig_num));
+        set(gca,'MapCenter',plotLLVelocitydisparityData(1,1:2));
+        colormap(gca,colorMapMatrixOrString);
+        title('LLA mean velocities')
+
+        h_colorbar = colorbar;
+        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        % There are 2.23694 mph in 1 m/s
+        colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Ncolors));
+        h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+        h_colorbar.Label.String = 'Speed (mph)';
+    end
+
+
+    %%%%%%%%%%%%%
+    % Plot velocity stddeviations in ENU
+    subplot(3,2,5);
+    colormap(gca,colorMapMatrixOrString);
+    fcn_plotRoad_plotXYI(plotXYVelocitystdData, (plotFormat), (reducedColorMap), (fig_num));    
+    title('ENU velocity standard deviation')
+    xlabel('East [m]')
+    ylabel('North [m]')
+
+
+    h_colorbar = colorbar;
+    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    % There are 2.23694 mph in 1 m/s
+    colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Ncolors),2);
+    h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+    h_colorbar.Label.String = 'Speed (mph)';
+
+    %%%%%%%%%%%%%
+    % Plot velocity stddeviations in LLA
+
+    if ~isempty(tLLA)
+        subplot(3,2,6);
+        fcn_plotRoad_plotLLI(plotLLVelocitystdData, (plotFormat), (reducedColorMap), (fig_num));
+        set(gca,'MapCenter',plotLLVelocitydisparityData(1,1:2));
+        colormap(gca,colorMapMatrixOrString);
+        title('LLA velocity standard deviation')
+    
+        h_colorbar = colorbar;
+        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        % There are 2.23694 mph in 1 m/s
+        colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Ncolors),2);
+        h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+        h_colorbar.Label.String = 'Speed (mph)';
+    end
 
 end
 

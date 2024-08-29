@@ -15,7 +15,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 
 % Test the function
 searchRadiusAndAngles = 20;
-speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+[speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -23,10 +23,17 @@ assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(speedDisparity(:,1))== Nrows_expected)
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
+
 
 %% test 2 - collect data with no plotting
 fig_num = 2;
@@ -39,18 +46,25 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 
 % Test the function
 searchRadiusAndAngles = 20;
-speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, ([]));
+[speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, ([]));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(~ishandle(fig_num)));
 
+
 % Does the data have right number of columns?
 assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(speedDisparity(:,1))== Nrows_expected)
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
 
 
 %% test 3 - load the TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv test file
@@ -64,18 +78,25 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane2_2024_08_09.csv'; % Path 
 
 % Test the function
 searchRadiusAndAngles = 20;
-speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+[speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
+
 % Does the data have right number of columns?
 assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(speedDisparity(:,1))== Nrows_expected)
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
 
 
 %% test 4 - load the TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv test file
@@ -89,7 +110,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path 
 
 % Test the function
 searchRadiusAndAngles = 20;
-speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+[speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
 % Was a figure created?
@@ -97,10 +118,16 @@ assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(speedDisparity(:,1))== Nrows_expected)
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
 
 %% test 5 - load the TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv test file
 fig_num = 5;
@@ -113,20 +140,96 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path 
 
 % Test the function
 searchRadiusAndAngles = 20;
-speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+[speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+
+% Does the data have right number of columns?
+assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
+
+% Does the data have right number of rows?
+Nrows_expected = length(tLLA(:,1));
+assert(length(speedDisparity(:,1))== Nrows_expected)
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
+
+%% test 6 - find the variance-minimizing means
+fig_num = 6;
+figure(fig_num);
+clf;
+
+% Load the data
+csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+[tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
+
+% Test the function across a large range
+rangesToTest = (0.01*2.^(0:16))';
+Npoints = length(tLLA(:,1));
+Nranges = length(rangesToTest);
+
+% Initialize storage arrays
+AllMeanVelocities = zeros(Npoints,Nranges);
+AllStdsVelocities = zeros(Npoints,Nranges);
+AllMvalVelocities = zeros(Npoints,Nranges);
+
+% For each range, do calculations
+for ith_range = 1:Nranges
+    searchRadiusAndAngles = rangesToTest(ith_range,1);
+    fprintf(1,'Testing range: %.2f meters\n',searchRadiusAndAngles(1));
+    [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (-1));
+    AllMeanVelocities(:,ith_range) = real(sum(meanVelocityVector.^2,2).^0.5);
+    AllStdsVelocities(:,ith_range) = real(sum(stdVelocityVector.^2,2).^0.5);
+    AllMvalVelocities(:,ith_range) = Mspeeds;
+end
+
+% Remove bad values
+goodIndicies = ~isnan(AllMeanVelocities(:,end));
+goodAllMeanVelocities = AllMeanVelocities(goodIndicies,:);
+goodAllStdsVelocities = AllStdsVelocities(goodIndicies,:);
+goodAllMvalVelocities = AllMvalVelocities(goodIndicies,:);
+
+% Standard deviations of zero and infinity are not possible
+maxStd = max(goodAllStdsVelocities(~isinf(goodAllStdsVelocities)),[],'all');
+goodAllStdsVelocities(isinf(goodAllStdsVelocities)) = nan;
+goodAllStdsVelocities(0==goodAllStdsVelocities) = nan;
+
+meanStds = goodAllStdsVelocities./(goodAllStdsVelocities.^0.5);
+
+% Do some quick data checks
+figure(345);
+clf;
+for ith_point = 1:1:Npoints
+    loglog(rangesToTest,meanStds(ith_point,:)'./scalingFactors,'.','MarkerSize',20)
+    if ith_point==1
+        hold on;
+        grid on;
+        xlabel('Search range');
+        ylabel('Variance in mean');
+    end
+end
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
 assert(length(speedDisparity(1,:))== 1)
+assert(length(meanVelocityVector(1,:))== 2)
+assert(length(stdVelocityVector(1,:))== 2)
+assert(length(Mspeeds(1,:))== 1)
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
 assert(length(speedDisparity(:,1))== Nrows_expected)
-
-
+assert(length(meanVelocityVector(:,1))== Nrows_expected)
+assert(length(stdVelocityVector(:,1))== Nrows_expected)
+assert(length(Mspeeds(:,1))== Nrows_expected)
 %% Speed test
 
 % Load the data
@@ -144,7 +247,7 @@ tic;
 % Slow mode calculation - code copied from plotVehicleXYZ
 for i=1:REPS
     tstart=tic;
-    speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+    [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
     telapsed=toc(tstart);
     minTimeSlow=min(telapsed,minTimeSlow);
     maxTimeSlow=max(telapsed,maxTimeSlow);
@@ -158,7 +261,7 @@ minTimeFast = Inf;
 tic;
 for i=1:REPS
     tstart = tic;
-    speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
+    [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
     telapsed = toc(tstart);
     minTimeFast = min(telapsed,minTimeFast);
 end

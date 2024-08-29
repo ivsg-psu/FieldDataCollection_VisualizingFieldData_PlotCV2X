@@ -592,16 +592,7 @@ for ith_RSU = 1:N_RSUs
 
 end
 
-%% Position-matched speed disparity (directional)
-% Says how much speed at this position is changing in all directions
-% (head-on collisions). Difference is the distance from the ends of all
-% nearby vectors.
-
-
-%% Heading-matched speed disparity 
-% Says how much speed of traffic in same direction is varying (rear-end
-% collisions). Disparity is the difference between all the vectors aligned
-% with the current vector in the nearby area.
+%% Check velocity variance
 
 
 
