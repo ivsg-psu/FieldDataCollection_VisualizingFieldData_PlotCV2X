@@ -139,7 +139,7 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
-searchRadiusAndAngles = 20;
+searchRadiusAndAngles = 1.5;
 [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (fig_num));
 sgtitle({sprintf('Example %.0d: showing fcn_plotCV2X_calcSpeedDisparity',fig_num), sprintf('File: %s',csvFile)}, 'Interpreter','none','FontSize',12);
 
@@ -161,6 +161,19 @@ assert(length(stdVelocityVector(:,1))== Nrows_expected)
 assert(length(Mspeeds(:,1))== Nrows_expected)
 
 %% test 6 - find the variance-minimizing means
+% The following code performs AVAR analysis on the data to see how the mean
+% values change as we include larger/larger amounts of data around each
+% point to calculate the mean. There are two competing effects: as more
+% data is added, the variance decreases by the square-root of the count.
+% However, as more data is added around the point, the speed will change
+% from the average due to the speed actually changing. These effects
+% "fight" each other. The minimum variance result gives the "best" mean
+% velocity estimate we can find, and as well tells us the best uncertainty
+% we should expect.
+%
+% This shows that ~6 meters is the variance-minimizing search distance, and
+% the best variance we will see is about 0.1 m/s.
+
 fig_num = 6;
 figure(fig_num);
 clf;
@@ -170,7 +183,8 @@ csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function across a large range
-rangesToTest = (0.01*2.^(0:16))';
+% rangesToTest = (0.01*2.^(0:16))';
+rangesToTest = logspace(-1,2,50)';
 Npoints = length(tLLA(:,1));
 Nranges = length(rangesToTest);
 
@@ -195,18 +209,20 @@ goodAllMeanVelocities = AllMeanVelocities(goodIndicies,:);
 goodAllStdsVelocities = AllStdsVelocities(goodIndicies,:);
 goodAllMvalVelocities = AllMvalVelocities(goodIndicies,:);
 
-% Standard deviations of zero and infinity are not possible
+% Standard deviations of infinity and less than 0.1 are not possible. 
 maxStd = max(goodAllStdsVelocities(~isinf(goodAllStdsVelocities)),[],'all');
 goodAllStdsVelocities(isinf(goodAllStdsVelocities)) = nan;
-goodAllStdsVelocities(0==goodAllStdsVelocities) = nan;
+goodAllStdsVelocities(0.1>=goodAllStdsVelocities) = nan;
 
-meanStds = goodAllStdsVelocities./(goodAllStdsVelocities.^0.5);
+meanStds = goodAllStdsVelocities./(goodAllMvalVelocities.^0.5);
 
-% Do some quick data checks
+meanOfMeanStds = mean(meanStds,1,'omitnan')';
+
+% Check results with plot
 figure(345);
 clf;
-for ith_point = 1:1:Npoints
-    loglog(rangesToTest,meanStds(ith_point,:)'./scalingFactors,'.','MarkerSize',20)
+for ith_point = 1:1:length(meanStds(:,1))
+    loglog(rangesToTest,meanStds(ith_point,:),'.','MarkerSize',20)
     if ith_point==1
         hold on;
         grid on;
@@ -214,6 +230,9 @@ for ith_point = 1:1:Npoints
         ylabel('Variance in mean');
     end
 end
+loglog(rangesToTest,meanOfMeanStds,'b-','LineWidth',5);
+
+
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));

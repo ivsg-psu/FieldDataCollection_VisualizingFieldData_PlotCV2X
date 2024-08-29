@@ -4,7 +4,7 @@
 % If you have questions or comments, please contact Sean Brennan at
 % sbrennan@psu.edu
 
-
+close all
 
 %% Revision History:
 % 2023_08_25 - sbrennan@psu.edu
@@ -40,7 +40,7 @@ library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomToo
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PlotRoad_v2024_08_19';
 library_folders{ith_library} = {'Functions', 'Data'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip'; 
+library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip';
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PathClass_v2024_03_14';
@@ -179,8 +179,8 @@ velocities{Nfiles} = [];
 anglesENU{Nfiles} = [];
 compassHeadings{Nfiles} = [];
 
-allLLAs = [];
-allENUs = [];
+alltLLAs = [];
+alltENUs = [];
 allRSUs = [];
 allVelocities = [];
 allVelocityDisparities = [];
@@ -189,7 +189,9 @@ allCompassHeadings = [];
 
 for ith_file = 1:Nfiles
     % Get current filename
-    csvFile = dirList(ith_file).name;    
+    csvFile = dirList(ith_file).name;
+
+    fprintf(1,'Loading data from file: %s ...',csvFile);
 
     % Load the data
     [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
@@ -226,10 +228,11 @@ for ith_file = 1:Nfiles
     allVelocityDisparities = [allVelocityDisparities; speedDisparity]; %#ok<AGROW>
     allVelocityDisparitiesSameHeading = [allVelocityDisparitiesSameHeading; speedDisparitySameHeading]; %#ok<AGROW>
 
-    allLLAs = [allLLAs; tLLA]; %#ok<AGROW>
-    allENUs = [allENUs; tENU]; %#ok<AGROW>
+    alltLLAs = [alltLLAs; tLLA]; %#ok<AGROW>
+    alltENUs = [alltENUs; tENU]; %#ok<AGROW>
     allCompassHeadings = [allCompassHeadings; compassHeadingDegrees]; %#ok<AGROW>
-    
+
+    fprintf(1,'done.\n');
 end
 
 %% Plot each of the RSU coverages
@@ -244,7 +247,7 @@ AllLonDatas{N_RSUs} = [];
 
 for ith_RSU = 1:N_RSUs
     thisRSUnumber = numericRSUids(ith_RSU);
-    
+
     % Set up the figure
     fig_num = thisRSUnumber;
     figure(fig_num);
@@ -261,7 +264,7 @@ for ith_RSU = 1:N_RSUs
     plotFormat.LineWidth = 5;
 
 
-    % Plot the RSU location
+    % Plot the RSU locations
     fcn_plotRoad_plotLL((LLAsOfRSUs(ith_RSU,1:2)), (plotFormat), (fig_num));
     set(gca,'MapCenter',LLAsOfRSUs(ith_RSU,1:2));
 
@@ -269,16 +272,16 @@ for ith_RSU = 1:N_RSUs
     plotFormat.MarkerSize = 10;
 
     thisRSU_indicies = find(allRSUs==ith_RSU);
-    plotData = allLLAs(thisRSU_indicies,:);
+    plotData = alltLLAs(thisRSU_indicies,:);
 
-    fcn_plotRoad_plotLL(plotData(:,2:3), (plotFormat), (fig_num));    
+    fcn_plotRoad_plotLL(plotData(:,2:3), (plotFormat), (fig_num));
     title(sprintf('RSU %.0d: showing coverage range',fig_num), 'Interpreter','none','FontSize',12);
-    
+
     % Plot the RSU rings?
     clear plotFormat
     plotFormat.LineStyle = '-';
     plotFormat.LineWidth = 1;
-    plotFormat.Marker = 'none';  
+    plotFormat.Marker = 'none';
     plotFormat.Color = color_vector;
 
     fcn_plotCV2X_plotRSURangeCircle(thisRSUnumber, (plotFormat), (fig_num));
@@ -288,19 +291,18 @@ for ith_RSU = 1:N_RSUs
     clear plotFormat
     plotFormat.Color = color_vector;
     plotFormat.Marker = '.';
-    plotFormat.MarkerSize = 50;
+    plotFormat.MarkerSize = 5;
     plotFormat.LineStyle = 'none';
     plotFormat.LineWidth = 5;
 
-    fcn_plotRoad_plotLL((LLAsOfRSUs(ith_RSU,1:2)), (plotFormat), (1111));
-    plotFormat.MarkerSize = 5;
-    fcn_plotRoad_plotLL(plotData(:,2:3), (plotFormat), (1111));    
+    % Plot the data
+    fcn_plotRoad_plotLL(plotData(:,2:3), (plotFormat), (1111));
 
-    % Plot the RSU rings?
+    % Plot each RSU's "broadcast" rings
     clear plotFormat
     plotFormat.LineStyle = '-';
     plotFormat.LineWidth = 1;
-    plotFormat.Marker = 'none';  
+    plotFormat.Marker = 'none';
     plotFormat.Color = color_vector;
 
     [this_h_geoplot, this_AllLatData, this_AllLonData] = fcn_plotCV2X_plotRSURangeCircle(thisRSUnumber, (plotFormat), (1111));
@@ -308,19 +310,42 @@ for ith_RSU = 1:N_RSUs
     AllLatDatas{ith_RSU} = this_AllLatData;
     AllLonDatas{ith_RSU} = this_AllLonData;
 
+end
 
+% Put BIG dots on top of the RSU "pole" locations
+for ith_RSU = 1:N_RSUs
+
+    % Plot the results
+    color_vector = fcn_geometry_fillColorFromNumberOrName(ith_RSU);
+
+    clear plotFormat
+    plotFormat.Color = color_vector;
+    plotFormat.Marker = '.';
+    plotFormat.MarkerSize = 50;
+    plotFormat.LineStyle = 'none';
+    plotFormat.LineWidth = 5;
+
+
+    % Plot the RSU locations
+    fcn_plotRoad_plotLL((LLAsOfRSUs(ith_RSU,1:2)), (plotFormat), (1111));
 
 end
 
+
+figure(1111);
+set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
+title('Site 2 RSU coverage zones');
+
 %% Animate RSU plot?
-Nrings = length(AllLatData(:,1));
+Nrings = length(AllLonDatas{1}(:,1));
 skipInterval = Nrings/4;
 
 
 % Clear the plot
-for timeIndex = 1:100
+for timeIndex = 1:skipInterval+1
     for ith_RSU = 1:N_RSUs
         fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplots{ith_RSU}(1:end-1), AllLatDatas{ith_RSU}, AllLonDatas{ith_RSU}, skipInterval,-1);
+        % pause(0.02);
     end
 end
 
@@ -329,13 +354,13 @@ end
 filename = 'fcn_plotCV2X_site2RSUs.gif';
 flagFirstTime = 1;
 
-for timeIndex = 1:200
+for timeIndex = 1:skipInterval
     for ith_RSU = 1:N_RSUs
         fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplots{ith_RSU}(1:end-1), AllLatDatas{ith_RSU}, AllLonDatas{ith_RSU}, skipInterval,-1);
     end
 
     % Create an animated gif?
-    if 1==1
+    if 1==0
         frame = getframe(gcf);
         current_image = frame2im(frame);
         [A,map] = rgb2ind(current_image,256);
@@ -380,17 +405,17 @@ goodVelocityDisparitiesSameHeading = allVelocityDisparitiesSameHeading(goodVeloc
 velocityAxes = [min(goodVelocities); max(goodVelocities)];
 velocityDisparityAxes = [0; max(goodVelocityDisparities)];
 velocityDisparitySameHeadingAxes = [0; max(goodVelocityDisparitiesSameHeading)];
-heightAxes = [min(allLLAs(:,4)) max(allLLAs(:,4))];
+heightAxes = [min(alltLLAs(:,4)) max(alltLLAs(:,4))];
 
 flag_combine_all = 1; % Set to 1 to plot all together, or 0 to plot each RSU separately
 for ith_RSU = 1:N_RSUs
     thisRSUnumber = numericRSUids(ith_RSU);
-   
+
 
     % Isolate the data for this RSU
     thisRSU_indicies = find(allRSUs==ith_RSU);
-    thisRSU_LLA = allLLAs(thisRSU_indicies,:);
-    thisRSU_ENU = allENUs(thisRSU_indicies,:);
+    thisRSU_LLA = alltLLAs(thisRSU_indicies,:);
+    thisRSU_ENU = alltENUs(thisRSU_indicies,:);
     thisRSU_velocities = allVelocities(thisRSU_indicies,:);
     thisRSU_velocityDisparities = allVelocityDisparities(thisRSU_indicies,:);
     thisRSU_velocityDisparitiesSameHeading = allVelocityDisparitiesSameHeading(thisRSU_indicies,:);
@@ -401,18 +426,18 @@ for ith_RSU = 1:N_RSUs
     goodTime = nan(size(thisRSU_velocities));
     goodTime(goodPlottingIndicies,1) = thisRSU_ENU(goodPlottingIndicies,1);
 
-    rawXYVData = [thisRSU_ENU(:,2:3) thisRSU_velocities];    
-    rawXYVeldisparityData = [thisRSU_ENU(:,2:3) thisRSU_velocityDisparities];    
-    rawXYVeldisparitysameheadingData = [thisRSU_ENU(:,2:3) thisRSU_velocityDisparitiesSameHeading];    
-    rawXYHData = [thisRSU_ENU(:,2:3) thisRSU_compassHeadings/360];    
+    rawXYVData = [thisRSU_ENU(:,2:3) thisRSU_velocities];
+    rawXYVeldisparityData = [thisRSU_ENU(:,2:3) thisRSU_velocityDisparities];
+    rawXYVeldisparitysameheadingData = [thisRSU_ENU(:,2:3) thisRSU_velocityDisparitiesSameHeading];
+    rawXYHData = [thisRSU_ENU(:,2:3) thisRSU_compassHeadings/360];
     plotXYVData = rawXYVData(goodPlottingIndicies,:);
     plotXYVeldisparityData = rawXYVeldisparityData(goodPlottingIndicies,:);
     plotXYVeldisparitysameheadingData = rawXYVeldisparitysameheadingData(goodPlottingIndicies,:);
     plotXYHData = rawXYHData(goodPlottingIndicies,:);
 
     rawLLVData = [thisRSU_LLA(:,2:3) thisRSU_velocities];
-    rawLLVeldisparityData = [thisRSU_LLA(:,2:3) thisRSU_velocityDisparities];    
-    rawLLVeldisparitysameheadingData = [thisRSU_LLA(:,2:3) thisRSU_velocityDisparitiesSameHeading];    
+    rawLLVeldisparityData = [thisRSU_LLA(:,2:3) thisRSU_velocityDisparities];
+    rawLLVeldisparitysameheadingData = [thisRSU_LLA(:,2:3) thisRSU_velocityDisparitiesSameHeading];
     rawLLHData = [thisRSU_LLA(:,2:3) thisRSU_compassHeadings/360];
     rawLLheightData = [thisRSU_LLA(:,2:3) thisRSU_LLA(:,4)];
     plotLLVData = rawLLVData(goodPlottingIndicies,:);
@@ -440,7 +465,7 @@ for ith_RSU = 1:N_RSUs
         figure(fig_num);
         clf;
     end
-    
+
     fcn_plotRoad_plotXYI([goodTime thisRSU_velocities thisRSU_velocities], (plotFormat), (reducedColorMap), (fig_num));
     axis('normal');
     colormap(gca,colorMapMatrixOrString);
@@ -461,7 +486,7 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
+
     fcn_plotRoad_plotXYI([goodTime thisRSU_compassHeadings thisRSU_velocities], (plotFormat), (reducedColorMap), (fig_num));
     axis("normal");
     colormap(gca,colorMapMatrixOrString);
@@ -482,8 +507,8 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
-    fcn_plotRoad_plotXYI(plotXYVData, (plotFormat), (reducedColorMap), (fig_num));    
+
+    fcn_plotRoad_plotXYI(plotXYVData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
     title('ENU velocities')
     xlabel('East [m]')
@@ -501,8 +526,8 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
-    fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));    
+
+    fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
     title(sprintf('RSU %.0d: LLA velocities',fig_num), 'Interpreter','none','FontSize',12);
     fcn_INTERNAL_setSpeedColorBar(velocityAxes,Ncolors)
@@ -517,8 +542,8 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
-    fcn_plotRoad_plotXYI(plotXYHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));    
+
+    fcn_plotRoad_plotXYI(plotXYHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));
     colormap(gca,fullWrapAroundColorMap);
     xlabel('East [m]')
     ylabel('North [m]')
@@ -536,8 +561,8 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
-    fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));  
+
+    fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));
     colormap(gca,fullWrapAroundColorMap);
     title(sprintf('RSU %.0d: LLA heading',fig_num), 'Interpreter','none','FontSize',12);
     fcn_INTERNAL_setHeadingColorBar(Ncolors)
@@ -552,12 +577,12 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    
-    fcn_plotRoad_plotLLI(plotLLheightData, (plotFormat), (reducedColorMap), (fig_num));    
+
+    fcn_plotRoad_plotLLI(plotLLheightData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
     title(sprintf('RSU %.0d: LLA heights',fig_num), 'Interpreter','none','FontSize',12);
     fcn_INTERNAL_setHeightColorBar(heightAxes,Ncolors)
-    
+
 
     % Set up the LLA speed disparity figure
     if 1==flag_combine_all
@@ -569,7 +594,7 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    fcn_plotRoad_plotLLI(plotLLVeldisparityData, (plotFormat), (reducedColorMap), (fig_num));    
+    fcn_plotRoad_plotLLI(plotLLVeldisparityData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
     title(sprintf('RSU %.0d: LLA Velocity Disparity',fig_num), 'Interpreter','none','FontSize',12);
     fcn_INTERNAL_setSpeedColorBar(velocityDisparityAxes,Ncolors)
@@ -585,16 +610,92 @@ for ith_RSU = 1:N_RSUs
         clf;
     end
 
-    fcn_plotRoad_plotLLI(plotLLVeldisparitysameheadingData, (plotFormat), (reducedColorMap), (fig_num));    
+    fcn_plotRoad_plotLLI(plotLLVeldisparitysameheadingData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
     title(sprintf('RSU %.0d: LLA Velocity Disparity, Same Heading',fig_num), 'Interpreter','none','FontSize',12);
     fcn_INTERNAL_setSpeedColorBar(velocityDisparitySameHeadingAxes,Ncolors)
 
 end
 
-%% Check velocity variance
+%% Check velocity variance?
+if 1==0
+    % The following code performs AVAR analysis on the data to see how the mean
+    % values change as we include larger/larger amounts of data around each
+    % point to calculate the mean. There are two competing effects: as more
+    % data is added, the variance decreases by the square-root of the count.
+    % However, as more data is added around the point, the speed will change
+    % from the average due to the speed actually changing. These effects
+    % "fight" each other. The minimum variance result gives the "best" mean
+    % velocity estimate we can find, and as well tells us the best uncertainty
+    % we should expect.
+    %
+    % This shows that ~6 meters is the variance-minimizing search distance, and
+    % the best variance we will see is about 0.1 m/s.
 
+    % Test the function across a large range
+    rangesToTest = (0.01*2.^(2:11))';
+    % rangesToTest = logspace(-1,2,50)';
+    Npoints = length(alltLLAs(:,1));
+    Nranges = length(rangesToTest);
 
+    % Initialize storage arrays
+    AllMeanVelocities = zeros(Npoints,Nranges);
+    AllStdsVelocities = zeros(Npoints,Nranges);
+    AllMvalVelocities = zeros(Npoints,Nranges);
+
+    % For each range, do calculations
+    fprintf(1,'\n\nTesting different ranges for data groupings to find range that minimizes uncertainty in mean velocity.\n')
+    for ith_range = 1:Nranges
+        searchRadiusAndAngles = rangesToTest(ith_range,1);
+        fprintf(1,'Testing range: %.2f meters\n',searchRadiusAndAngles(1));
+        [speedDisparity, meanVelocityVector, stdVelocityVector, Mspeeds] = fcn_plotCV2X_calcSpeedDisparity(alltLLAs, alltENUs, searchRadiusAndAngles, (-1));
+        AllMeanVelocities(:,ith_range) = real(sum(meanVelocityVector.^2,2).^0.5);
+        AllStdsVelocities(:,ith_range) = real(sum(stdVelocityVector.^2,2).^0.5);
+        AllMvalVelocities(:,ith_range) = Mspeeds;
+    end
+
+    % Remove bad values
+    goodIndicies = ~isnan(AllMeanVelocities(:,end));
+    goodAllMeanVelocities = AllMeanVelocities(goodIndicies,:);
+    goodAllStdsVelocities = AllStdsVelocities(goodIndicies,:);
+    goodAllMvalVelocities = AllMvalVelocities(goodIndicies,:);
+
+    % Standard deviations of infinity and less than 0.0001 are not possible.
+    maxStd = max(goodAllStdsVelocities(~isinf(goodAllStdsVelocities)),[],'all');
+    goodAllStdsVelocities(isinf(goodAllStdsVelocities)) = nan;
+    goodAllStdsVelocities(0.0001>=goodAllStdsVelocities) = nan;
+
+    meanStds = goodAllStdsVelocities./(goodAllMvalVelocities.^0.5);
+
+    meanOfMeanStds = mean(meanStds,1,'omitnan')';
+
+    %%%%
+    % Check results with plotting
+    figure(345);
+    clf;
+    for ith_point = 1:10:length(meanStds(:,1))
+        loglog(rangesToTest,meanStds(ith_point,:),'.','MarkerSize',20)
+        if ith_point==1
+            hold on;
+            grid on;
+            xlabel('Search range');
+            ylabel('Variance in mean');
+        end
+        pause(0.02);
+    end
+    loglog(rangesToTest,meanOfMeanStds,'b-','LineWidth',5);
+
+    %%%%
+    % Check the weird pattern where the variances are grouping
+    figure(23445);
+    for ith_range = 1:length(rangesToTest(:,1))
+        histogram(log10(meanStds(:,ith_range)),100);
+        title(sprintf('Range = %.2f meters',rangesToTest(ith_range,1)));
+        xlim([-4 2]);
+        pause(0.2)
+    end
+
+end
 
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
