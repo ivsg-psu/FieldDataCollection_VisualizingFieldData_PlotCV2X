@@ -152,7 +152,7 @@ fig_num = 1;
 figure(fig_num);
 clf;
 
-RSUid = 'Site2';
+SiteStringIdentifier = 'Site2';
 
 clear plotFormat
 plotFormat.LineStyle = '-';
@@ -161,7 +161,7 @@ plotFormat.Marker = 'none';  % '.';
 plotFormat.MarkerSize = 50;
 plotFormat.Color = [1 0 1];
 
-[LLAsOfRSUs, numericRSUids] =fcn_plotCV2X_loadRSULLAs(RSUid, (plotFormat), (fig_num));
+[LLAsOfRSUs, numericRSUids] =fcn_plotCV2X_loadRSULLAs(SiteStringIdentifier, (plotFormat), (fig_num));
 title(sprintf('Figure %.0d: RSU locations for Site 2',fig_num), 'Interpreter','none');
 
 %% Load all the site data
@@ -472,7 +472,7 @@ for ith_RSU = 1:N_RSUs
     title('Velocity')
     xlabel('Time [s]')
     ylabel('Velocity [m/s]')
-    title(sprintf('RSU %.0d: velocity versus time',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'velocity versus time', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityAxes,Ncolors)
 
 
@@ -493,8 +493,7 @@ for ith_RSU = 1:N_RSUs
     title('Compass Heading')
     xlabel('Time [s]')
     ylabel('Heading [deg]')
-    title(sprintf('RSU %.0d: heading versus time',fig_num), 'Interpreter','none','FontSize',12);
-
+    fcn_INTERNAL_addTitle(flag_combine_all,'heading versus time', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityAxes,Ncolors)
 
     % Set up the ENU velocity figure
@@ -513,7 +512,7 @@ for ith_RSU = 1:N_RSUs
     title('ENU velocities')
     xlabel('East [m]')
     ylabel('North [m]')
-    title(sprintf('RSU %.0d: ENU velocities',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'ENU velocities', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityAxes,Ncolors)
 
     % Set up the LLA velocity figure
@@ -529,7 +528,7 @@ for ith_RSU = 1:N_RSUs
 
     fcn_plotRoad_plotLLI(plotLLVData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
-    title(sprintf('RSU %.0d: LLA velocities',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'LLA velocities', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityAxes,Ncolors)
 
     % Set up the ENU heading figure
@@ -547,7 +546,7 @@ for ith_RSU = 1:N_RSUs
     colormap(gca,fullWrapAroundColorMap);
     xlabel('East [m]')
     ylabel('North [m]')
-    title(sprintf('RSU %.0d: ENU heading',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'ENU heading', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setHeadingColorBar(Ncolors)
 
 
@@ -564,7 +563,7 @@ for ith_RSU = 1:N_RSUs
 
     fcn_plotRoad_plotLLI(plotLLHData, (plotFormat), (reducedWrapAroundColorMap), (fig_num));
     colormap(gca,fullWrapAroundColorMap);
-    title(sprintf('RSU %.0d: LLA heading',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'LLA heading', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setHeadingColorBar(Ncolors)
 
     % Set up the LLA height figure
@@ -580,7 +579,7 @@ for ith_RSU = 1:N_RSUs
 
     fcn_plotRoad_plotLLI(plotLLheightData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
-    title(sprintf('RSU %.0d: LLA heights',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'LLA height', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setHeightColorBar(heightAxes,Ncolors)
 
 
@@ -596,7 +595,7 @@ for ith_RSU = 1:N_RSUs
 
     fcn_plotRoad_plotLLI(plotLLVeldisparityData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
-    title(sprintf('RSU %.0d: LLA Velocity Disparity',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'LLA velocity disparity', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityDisparityAxes,Ncolors)
 
 
@@ -612,9 +611,25 @@ for ith_RSU = 1:N_RSUs
 
     fcn_plotRoad_plotLLI(plotLLVeldisparitysameheadingData, (plotFormat), (reducedColorMap), (fig_num));
     colormap(gca,colorMapMatrixOrString);
-    title(sprintf('RSU %.0d: LLA Velocity Disparity, Same Heading',fig_num), 'Interpreter','none','FontSize',12);
+    fcn_INTERNAL_addTitle(flag_combine_all,'LLA velocity disparity, same heading', SiteStringIdentifier, thisRSUnumber);
     fcn_INTERNAL_setSpeedColorBar(velocityDisparitySameHeadingAxes,Ncolors)
 
+end
+
+%%% Recenter the plots
+
+if 1==flag_combine_all
+    figs_to_update = 10000*(1:9);
+else
+    figs_to_update = 1000*(1:9);
+end
+for ith_figure = 1:length(figs_to_update)
+    current_fig = figs_to_update(ith_figure);
+    figure(current_fig);
+    try
+        set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
+    catch
+    end
 end
 
 %% Check velocity variance?
@@ -696,6 +711,17 @@ if 1==0
     end
 
 end
+
+%% Calcualte velocity disparity across entire Site
+figure(2345); clf;
+searchRadiusAndAngles = 6;
+fcn_plotCV2X_calcSpeedDisparity(alltLLAs, alltENUs, searchRadiusAndAngles, (2345));
+sgtitle('Site 2 velocity summaries, range averaged')
+
+figure(3456); clf;
+searchRadiusAndAngles = [1.4 15*pi/180];
+fcn_plotCV2X_calcSpeedDisparity(alltLLAs, alltENUs, searchRadiusAndAngles, (3456));
+sgtitle('Site 2 velocity summaries, range and heading averaged')
 
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1158,7 +1184,7 @@ end
 function fcn_INTERNAL_setHeightColorBar(height,Ncolors)
 h_colorbar = colorbar;
 h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
-colorbarValues   = round(linspace(min(height), max(height), Ncolors),-2);
+colorbarValues   = round(linspace(min(height), max(height), Ncolors),-1);
 h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
 h_colorbar.Label.String = 'Height (meters)';
 end
@@ -1169,3 +1195,12 @@ maxValue  = max(rangeData);
 minValue = min(rangeData);
 outputData(:,3) = (inputData(:,3)-minValue)/(maxValue - minValue);
 end
+
+function fcn_INTERNAL_addTitle(flag_combine_all,text_to_list, SiteStringIdentifier, thisRSUnumber)
+if 1==flag_combine_all
+    title(sprintf('Site: %s, %s',SiteStringIdentifier, text_to_list), 'Interpreter','none','FontSize',12);
+else
+    title(sprintf('RSU %.0d, %s',thisRSUnumber, text_to_list), 'Interpreter','none','FontSize',12);
+end
+end
+

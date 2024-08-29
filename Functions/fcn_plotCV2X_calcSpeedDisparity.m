@@ -240,6 +240,7 @@ if flag_do_plots == 1
     plotFormat.MarkerSize = 10;
     colorMapMatrixOrString = colormap('turbo');
     Ncolors = 16;
+    Nticks = 5;
     reducedColorMap = fcn_plotRoad_reduceColorMap(colorMapMatrixOrString, Ncolors, -1);
 
     %%%%%%%%%%%%%
@@ -253,9 +254,9 @@ if flag_do_plots == 1
 
 
     h_colorbar = colorbar;
-    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
     % There are 2.23694 mph in 1 m/s
-    colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Ncolors));
+    colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Nticks));
     h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
     h_colorbar.Label.String = 'Speed (mph)';
 
@@ -270,11 +271,13 @@ if flag_do_plots == 1
         title('LLA velocity disparities')
 
         h_colorbar = colorbar;
-        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
         % There are 2.23694 mph in 1 m/s
-        colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Ncolors));
+        colorbarValues   = round(2.23694 * linspace(min(speedDisparity), max(speedDisparity), Nticks));
         h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
         h_colorbar.Label.String = 'Speed (mph)';
+
+        set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
     end
 
 
@@ -289,9 +292,9 @@ if flag_do_plots == 1
 
 
     h_colorbar = colorbar;
-    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
     % There are 2.23694 mph in 1 m/s
-    colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Ncolors));
+    colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Nticks));
     h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
     h_colorbar.Label.String = 'Speed (mph)';
 
@@ -306,11 +309,13 @@ if flag_do_plots == 1
         title('LLA mean velocities')
 
         h_colorbar = colorbar;
-        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
         % There are 2.23694 mph in 1 m/s
-        colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Ncolors));
+        colorbarValues   = round(2.23694 * linspace(min(velocityMeans), max(velocityMeans), Nticks));
         h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
         h_colorbar.Label.String = 'Speed (mph)';
+
+        set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
     end
 
 
@@ -325,9 +330,9 @@ if flag_do_plots == 1
 
 
     h_colorbar = colorbar;
-    h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+    h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
     % There are 2.23694 mph in 1 m/s
-    colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Ncolors),2);
+    colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Nticks),1);
     h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
     h_colorbar.Label.String = 'Speed (mph)';
 
@@ -342,11 +347,13 @@ if flag_do_plots == 1
         title('LLA velocity standard deviation')
     
         h_colorbar = colorbar;
-        h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+        h_colorbar.Ticks = linspace(0, 1, Nticks) ; %Create ticks from zero to 1
         % There are 2.23694 mph in 1 m/s
-        colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Ncolors),2);
+        colorbarValues   = round(2.23694 * linspace(min(velocityStds(~isinf(velocityStds),:)), max(velocityStds(~isinf(velocityStds),:)), Nticks),1);
         h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
         h_colorbar.Label.String = 'Speed (mph)';
+
+        set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
     end
 
 end
