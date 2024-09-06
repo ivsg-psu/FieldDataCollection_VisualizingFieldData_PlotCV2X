@@ -171,10 +171,10 @@ fig_num = 1;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'}, 'Interpreter','none');
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'}, 'Interpreter','none');
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -184,7 +184,7 @@ assert(length(tLLA(1,:))== 4)
 assert(length(tENU(1,:))== 4)
 
 % Does the data have many rows
-Nrows_expected = 1149;
+Nrows_expected = 1688;
 assert(length(tLLA(:,1))== Nrows_expected)
 assert(length(tENU(:,1))== Nrows_expected)
 
@@ -207,6 +207,14 @@ setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 
 
 RSUsiteString = 'TestTrack';
+
+clear plotFormat
+plotFormat.LineStyle = '-';
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 50;
+plotFormat.Color = [1 0 1];
+
 [LLAsOfRSUs, numericRSUids] =fcn_plotCV2X_loadRSULLAs(RSUsiteString, (plotFormat), (-1));
 N_RSUs = length(numericRSUids(:,1));
 
@@ -353,7 +361,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -397,14 +405,14 @@ figure(fig_num);
 clf;
 
 % Load the data
-dirname = cat(2,'Data',filesep,'Site2*');
+dirname = cat(2,'Data',filesep,'TestTrack*');
 dirList = dir(dirname);
 allVelocities = [];
 allLLAs = [];
 allENUs = [];
 for ith_file = 1:length(dirList)
     csvFile = dirList(ith_file).name;
-    % csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+    % csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
     [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
     % Plot the results
@@ -440,7 +448,7 @@ Nrows_expected = length(tLLA(:,1));
 assert(length(velocity(:,1))== Nrows_expected)
 
 % Set GPS coordinates of RSU
-RSU_LLA = [39.99533, -79.44553];
+RSU_LLA = [40.86486, -77.83050];
 
 % Plot the RSU positions
 subplot(1,2,2);
@@ -502,7 +510,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane2_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -548,7 +556,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_OuterLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
