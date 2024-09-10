@@ -197,7 +197,7 @@ for ith_file = 1:Nfiles
     [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
     % Determine which RSU this belongs to. The number is in the 10th digit
-    RSUcharacter = csvFile(10);
+    RSUcharacter = csvFile(14);
     RSUdigit = str2double(RSUcharacter);
 
 
