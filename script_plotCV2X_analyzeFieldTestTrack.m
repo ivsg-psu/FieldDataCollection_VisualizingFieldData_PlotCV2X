@@ -162,7 +162,7 @@ plotFormat.MarkerSize = 50;
 plotFormat.Color = [1 0 1];
 
 [LLAsOfRSUs, numericRSUids] =fcn_plotCV2X_loadRSULLAs(SiteStringIdentifier, (plotFormat), (fig_num));
-title(sprintf('Figure %.0d: RSU locations for Site 2',fig_num), 'Interpreter','none');
+title(sprintf('Figure %.0d: RSU locations for Test Track',fig_num), 'Interpreter','none');
 
 %% Load all the site data
 
@@ -716,12 +716,12 @@ end
 figure(2345); clf;
 searchRadiusAndAngles = 6;
 fcn_plotCV2X_calcSpeedDisparity(alltLLAs, alltENUs, searchRadiusAndAngles, (2345));
-sgtitle('Site 2 velocity summaries, range averaged')
+sgtitle('Test Track velocity summaries, range averaged')
 
 figure(3456); clf;
 searchRadiusAndAngles = [1.4 15*pi/180];
 fcn_plotCV2X_calcSpeedDisparity(alltLLAs, alltENUs, searchRadiusAndAngles, (3456));
-sgtitle('Site 2 velocity summaries, range and heading averaged')
+sgtitle('Test Track velocity summaries, range and heading averaged')
 
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
