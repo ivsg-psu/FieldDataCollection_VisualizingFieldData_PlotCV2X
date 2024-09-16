@@ -330,7 +330,7 @@ script_plotCV2X_analyzeFieldTestTrack.m
 </pre>
 
 <pre align="center">
-  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_LLAheight.jpgf" alt="Test Track LLA height" width="500" height="400">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_LLAheight.jpg" alt="Test Track LLA height" width="500" height="400">
   <figcaption>Test Track LLA height</figcaption>
 </pre>
 
@@ -366,7 +366,7 @@ script_plotCV2X_analyzeFieldSite2.m
 </pre>
 
 <pre align="center">
-  <img src=".\Images\script_plotCV2X_analyzeFieldSite2_LLAheight.jpgf" alt="site 2 LLA height" width="500" height="400">
+  <img src=".\Images\script_plotCV2X_analyzeFieldSite2_LLAheight.jpg" alt="site 2 LLA height" width="500" height="400">
   <figcaption>Site 2 LLA height</figcaption>
 </pre>
 
