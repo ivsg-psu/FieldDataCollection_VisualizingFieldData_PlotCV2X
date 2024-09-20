@@ -1,5 +1,5 @@
 %% script_plotCV2X_analyzeFieldSite1
-% This is an analysis script for the Site 2 location near Falling Water
+% This is an analysis script for the Site 1 location near Falling Water
 %
 % If you have questions or comments, please contact Sean Brennan at
 % sbrennan@psu.edu
@@ -166,7 +166,7 @@ title(sprintf('Figure %.0d: RSU locations for Site 1',fig_num), 'Interpreter','n
 
 %% Load all the site data
 
-% What files are in the data directory that start with the name 'Site2'?
+% What files are in the data directory that start with the name 'Site1'?
 dirname = cat(2,'Data',filesep,'Site1*');
 dirList = dir(dirname);
 Nfiles = length(dirList);

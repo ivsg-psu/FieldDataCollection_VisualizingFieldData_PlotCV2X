@@ -163,7 +163,7 @@ if ~isnumeric(RSUid)
             end
 
         case 'Site1' % ADS Site 1, Pittsburgh
-            N_RSUs = 1;
+            N_RSUs = 6;
             LLAsOfRSUs = zeros(N_RSUs,3);
             numericRSUids = zeros(N_RSUs,1);
             siteOffset = 200;
@@ -201,7 +201,22 @@ else
             LLAsOfRSUs = [40.863145, -77.83499, 0];
         case 201
             % Pittsburgh site 1
-            LLAsOfRSUs = [40.43073, -79.87261, 0];
+            LLAsOfRSUs = [40.43072, -79.87313, 0];
+        case 202
+            % Pittsburgh site 1
+            LLAsOfRSUs = [40.43567, -79.86666, 0];
+        case 203
+            % Pittsburgh site 1
+            LLAsOfRSUs = [40.44158, -79.85775, 0];
+        case 204
+            % Pittsburgh site 1
+            LLAsOfRSUs = [40.44499, -79.85104, 0];
+        case 205
+            % Pittsburgh site 1
+            LLAsOfRSUs = [40.44526, -79.84611, 0];
+        case 206
+            % Pittsburgh site 1
+            LLAsOfRSUs = [40.44144, -79.83609, 0];
         case 301
             % Pittsburgh site 2, top of the hill mounted to speed limit sign,
             % adjacent to the lighted sign which is first work-zone ahead.
