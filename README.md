@@ -308,6 +308,42 @@ Primary and general examples can be found in script_demo_plotCV2x
 
 ### Advanced Examples
 
+#### **Test Track Analysis**
+
+An analysis of the Test Track can be found at:
+
+script_plotCV2X_analyzeFieldTestTrack.m
+
+<pre align="center">
+  <img src=".\Images\fcn_plotCV2X_TestTrackRSUs.gif" alt="Test Track RSU coverage picture" width="500" height="400">
+  <figcaption>Coverage results for Test Track</figcaption>
+</pre>
+
+<pre align="center">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_LLAvelocities.jpg" alt="Test Track LLA velocities" width="500" height="400">
+  <figcaption>Test Track LLA velocities</figcaption>
+</pre>
+
+<pre align="center">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_LLAheading.jpg" alt="Test Track LLA heading" width="500" height="400">
+  <figcaption>Test Track LLA heading</figcaption>
+</pre>
+
+<pre align="center">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_LLAheight.jpg" alt="Test Track LLA height" width="500" height="400">
+  <figcaption>Test Track LLA height</figcaption>
+</pre>
+
+<pre align="center">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_VelocityDisparity.jpg" alt="Test Track velocity disparity" width="500" height="400">
+  <figcaption>Test Track velocity disparity"</figcaption>
+</pre>
+
+<pre align="center">
+  <img src=".\Images\script_plotCV2X_analyzeFieldTestTrack_VelocityDisparitySameHeading.jpg" alt="Test Track velocity disparity, same heading" width="500" height="400">
+  <figcaption>Test Track velocity disparity, same heading"</figcaption>
+</pre>
+
 #### **Site 2 Analysis**
 
 An analysis of the ADS site 2 can be found at:
@@ -330,7 +366,7 @@ script_plotCV2X_analyzeFieldSite2.m
 </pre>
 
 <pre align="center">
-  <img src=".\Images\script_plotCV2X_analyzeFieldSite2_LLAheight.jpgf" alt="site 2 LLA height" width="500" height="400">
+  <img src=".\Images\script_plotCV2X_analyzeFieldSite2_LLAheight.jpg" alt="site 2 LLA height" width="500" height="400">
   <figcaption>Site 2 LLA height</figcaption>
 </pre>
 
