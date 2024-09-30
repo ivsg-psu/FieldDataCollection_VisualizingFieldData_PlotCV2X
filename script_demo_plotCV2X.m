@@ -19,7 +19,8 @@
 %% Revision History:
 % 2023_08_15 - sbrennan@psu.edu and vbw5054@psu.edu
 % -- First write of code using PlotROad code as starter
-
+% 2024_09_26 - sbrennan@psu.edu
+% -- Updated function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
 
 %% To-Do list
 % 2024_08_15 - S. Brennan
@@ -584,7 +585,6 @@ assert(length(nearbyIndicies(1,:))== Nrows_expected)
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-
 %% function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
 function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
 % Clear out the variables
@@ -593,12 +593,21 @@ clear flag*
 clear path
 
 % Clear out any path directories under Utilities
-path_dirs = regexp(path,'[;]','split');
+if ispc
+    path_dirs = regexp(path,'[;]','split');
+elseif ismac
+    path_dirs = regexp(path,'[:]','split');
+elseif isunix
+    path_dirs = regexp(path,'[;]','split');
+else
+    error('Unknown operating system. Unable to continue.');
+end
+
 utilities_dir = fullfile(pwd,filesep,'Utilities');
 for ith_dir = 1:length(path_dirs)
     utility_flag = strfind(path_dirs{ith_dir},utilities_dir);
     if ~isempty(utility_flag)
-        rmpath(path_dirs{ith_dir});
+        rmpath(path_dirs{ith_dir})
     end
 end
 
