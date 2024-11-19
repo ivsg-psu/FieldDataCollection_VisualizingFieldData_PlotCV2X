@@ -183,7 +183,7 @@ given a RSU ID, plots range circles
   ```
 
 <pre align="center">
-  <img src=".\Images\fcn_plotCV2X_rangeRSU_circle.gif" alt="fcn_plotCV2X_plotRSURangeCircle picture" width="500" height="400">
+  <img src=".\Images\fcn_plotCV2X_TestTrackRSUs.gif" alt="fcn_plotCV2X_plotRSURangeCircle picture" width="500" height="400">
   <figcaption>Example of fcn_plotCV2X_plotRSURangeCircle</figcaption>
 </pre>
 
