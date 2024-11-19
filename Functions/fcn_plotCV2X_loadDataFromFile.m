@@ -146,11 +146,21 @@ timeSeconds = nan(Ndata,1); % Initialize the variable
 
 % Break the data into parts using ":" as the separator
 for ith_entry = 1:Ndata
-    splitStr = regexp(data{4}(ith_entry),':','split');
+    timeString = data{4}(ith_entry);
+    splitStr = regexp(timeString,':','split');
     cellContents = splitStr{1};
-    time_hours = str2double(cellContents{1});
-    time_minutes = str2double(cellContents{2});
-    time_60seconds = str2double(cellContents{3});
+    if length(cellContents)==3
+        time_hours = str2double(cellContents{1});
+        time_minutes = str2double(cellContents{2});
+        time_60seconds = str2double(cellContents{3});
+    elseif length(cellContents)==2
+        time_hours = 0;
+        time_minutes = str2double(cellContents{1});
+        time_60seconds = str2double(cellContents{2});
+ 
+    else
+        error('weird cell contents found!');
+    end
 
     % Convert this into seconds
     timeSeconds(ith_entry,1) = time_hours*3600 + time_minutes*60 + time_60seconds;

@@ -172,10 +172,10 @@ fig_num = 1;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_RSU1_PendulumRSU_MappingVan_senario1_3_2nd_round_2024_11_13_NO_OBUID.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'}, 'Interpreter','none');
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_RSU1_PendulumRSU_MappingVan_senario1_3_2nd_round_2024_11_13_NO_OBUID.csv'}, 'Interpreter','none');
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -362,7 +362,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_RSU1_PendulumRSU_MappingVan_senario1_3_2nd_round_2024_11_13_NO_OBUID.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -511,7 +511,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_RSU1_PendulumRSU_MappingVan_senario1_3_2nd_round_2024_11_13_NO_OBUID.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -557,7 +557,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_RSU1_PendulumRSU_MappingVan_senario1_3_2nd_round_2024_11_13_NO_OBUID.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
