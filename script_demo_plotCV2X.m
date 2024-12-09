@@ -172,10 +172,10 @@ fig_num = 1;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_LoadingDockRSU_50ft_2024_05_29.csv'; % Path to your CSV file
+csvFile = 'TestTrack_LoadingDockRSU_20ft_2024_05_29.csv'; % Path to your CSV file
 
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_LoadingDockRSU_50ft_2024_05_29.csv'}, 'Interpreter','none');
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_LoadingDockRSU_20ft_2024_05_29.csv'}, 'Interpreter','none');
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -185,7 +185,7 @@ assert(length(tLLA(1,:))== 4)
 assert(length(tENU(1,:))== 4)
 
 % Does the data have many rows
-Nrows_expected = 1591;
+Nrows_expected = 1590;
 assert(length(tLLA(:,1))== Nrows_expected)
 assert(length(tENU(:,1))== Nrows_expected)
 
@@ -362,7 +362,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_LoadingDockRSU_50ft_2024_05_29.csv'; % Path to your CSV file
+csvFile = 'TestTrack_LoadingDockRSU_20ft_2024_05_29.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -511,7 +511,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_LoadingDockRSU_50ft_2024_05_29.csv'; % Path to your CSV file
+csvFile = 'TestTrack_LoadingDockRSU_20ft_2024_05_29.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
@@ -557,7 +557,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_LoadingDockRSU_50ft_2024_05_29.csv'; % Path to your CSV file
+csvFile = 'TestTrack_LoadingDockRSU_20ft_2024_05_29.csv'; % Path to your CSV file
 [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
