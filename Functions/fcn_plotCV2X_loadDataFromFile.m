@@ -1,9 +1,9 @@
-function [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile,varargin)
+function [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile,varargin)
 %fcn_plotCV2X_loadDataFromFile  loads time+ENU and time+LLA data from file
 %
 % FORMAT:
 %
-%       [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
+%       [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
 %
 % INPUTS:
 %       csvFile: A string variable containing the name of the .csv file.
@@ -129,10 +129,10 @@ end
 % Read csv file
 fileID = fopen(csvFile,'r');
 % Read the header
-header_text = textscan(fileID,'%s %s %s %s',1,'Delimiter',',');
+header_text = textscan(fileID,'%s %s %s %s %s',1,'Delimiter',',');
 
 % Read the data
-data = textscan(fileID,'%f %f %f %s','Delimiter',',');
+data = textscan(fileID,'%f %f %f %s %s','Delimiter',',');
 fclose(fileID);
 
 % Check the data
@@ -140,6 +140,7 @@ Ndata = length(data{1});
 assert(Ndata == length(data{2}));
 assert(Ndata == length(data{3}));
 assert(Ndata == length(data{4}));
+%assert(Ndata == length(data{5}));
 
 % Convert the time data from string into seconds
 timeSeconds = nan(Ndata,1); % Initialize the variable
@@ -174,6 +175,8 @@ elv = data{3}/1.0;
 
 % Save result in output format
 tLLA = [timeSeconds lat lon elv];
+
+OBUID = [data{5}];
 
 % convert LLA to ENU
 reference_latitude = 40.86368573;
