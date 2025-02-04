@@ -155,12 +155,12 @@ The following are the top level directories within the repository:
 
 #### **fcn_plotCV2X_loadDataFromFile**
 
-loads time+ENU and time+LLA data from file
+loads time+ENU, time+LLA and corresponding OBU ID data from file
 
  **FORMAT:**
 
   ```Matlab
-    [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
+    [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
   ```
 
 <pre align="center">
