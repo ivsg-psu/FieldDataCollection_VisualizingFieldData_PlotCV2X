@@ -442,7 +442,7 @@ end
 assert(all(ishandle(fig_num)));
 
 % Does the data have right number of columns?
-assert(length(velocity(1,:))== 1)
+assert(length(velocity(1,:))== 1);
 
 % Does the data have right number of rows?
 Nrows_expected = length(tLLA(:,1));
