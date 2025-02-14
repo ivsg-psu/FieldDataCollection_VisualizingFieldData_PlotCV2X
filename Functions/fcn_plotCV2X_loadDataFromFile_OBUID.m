@@ -214,23 +214,62 @@ if flag_do_plots == 1
 
     figure(fig_num);
     clf;
-
-
+    
     clear plotFormat
-    plotFormat.Color = [0 0 1];
+    
     plotFormat.Marker = '.';
     plotFormat.MarkerSize = 10;
     plotFormat.LineStyle = 'none';
     plotFormat.LineWidth = 5;
-
+    
     flag_plot_headers_and_tailers = 1;
+    
+    N_OBUIDs = length(OBUID);
+    OBUID_List = [OBUID(1)];
+    tENU_data = cell(2,1);
+    tLLA_data = cell(2,1);
+    
+    if isempty(OBUID{1})
+    
+        plotFormat.Color = [0 0 1];
+    
+        subplot(1,2,1);
+        fcn_plotRoad_plotTraceXY(tENU(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+        subplot(1,2,2);
+        fcn_plotRoad_plotTraceLL(tLLA(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+    else
+        
+        for ith_OBUID = 1:N_OBUIDs
+            current_OBUID = 0;
+    
+            for ith_OBUID_List = 1:length(OBUID_List)
+                if OBUID(ith_OBUID) == OBUID_List(ith_OBUID_List)
+                    current_OBUID = ith_OBUID_List;
+                end
+            end
+    
+            if current_OBUID == 0
+                OBUID_List = [OBUID_List; OBUID(ith_OBUID)];
+                current_OBUID = length(OBUID_List);
+            end
+    
+            tENU_data{current_OBUID,1} = [tENU_data{current_OBUID,1};tLLA(ith_OBUID,2:3)];
+            tLLA_data{current_OBUID,1} = [tLLA_data{current_OBUID,1};tLLA(ith_OBUID,2:3)];
+    
+        end
+    
+        for ith_OBUID_List = 1:length(OBUID_List)
+            color_vector = fcn_geometry_fillColorFromNumberOrName(ith_OBUID_List);
+            plotFormat.Color = color_vector;
+    
+            subplot(1,2,1);
+            fcn_plotRoad_plotTraceXY(tENU_data{ith_OBUID_List}, (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+            subplot(1,2,2);
+            fcn_plotRoad_plotTraceLL(tLLA_data{ith_OBUID_List}, (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+        end
+        
+    end
 
-
-    subplot(1,2,1);
-    fcn_plotRoad_plotTraceXY(tENU(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-
-    subplot(1,2,2);
-    fcn_plotRoad_plotTraceLL(tLLA(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
 end
 
