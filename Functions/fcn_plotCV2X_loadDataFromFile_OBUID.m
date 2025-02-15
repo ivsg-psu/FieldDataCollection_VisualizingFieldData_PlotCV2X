@@ -253,7 +253,7 @@ if flag_do_plots == 1
                 current_OBUID = length(OBUID_List);
             end
     
-            tENU_data{current_OBUID,1} = [tENU_data{current_OBUID,1};tLLA(ith_OBUID,2:3)];
+            tENU_data{current_OBUID,1} = [tENU_data{current_OBUID,1};tENU(ith_OBUID,2:3)];
             tLLA_data{current_OBUID,1} = [tLLA_data{current_OBUID,1};tLLA(ith_OBUID,2:3)];
     
         end
