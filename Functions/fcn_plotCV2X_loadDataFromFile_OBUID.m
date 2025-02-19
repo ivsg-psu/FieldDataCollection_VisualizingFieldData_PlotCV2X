@@ -196,6 +196,51 @@ ENU_coordinates = gps_object.WGSLLA2ENU(lat,lon,elv,reference_latitude,reference
 % Save result in output format
 tENU = [timeSeconds ENU_coordinates];
 
+N_OBUIDs = length(OBUID);
+OBUID_List = [OBUID(1)];
+
+for ith_OBUID = 1:N_OBUIDs
+    OBUID_already_exist = 0;
+
+    for ith_OBUID_List = 1:length(OBUID_List)
+        if OBUID(ith_OBUID) == OBUID_List(ith_OBUID_List)
+            OBUID_already_exist = 1;
+        end
+    end
+
+    if OBUID_already_exist == 0
+        OBUID_List = [OBUID_List; OBUID(ith_OBUID)];
+    end
+end
+
+
+tENU_data = cell(2,1);
+tLLA_data = cell(2,1);
+
+
+if le(length(OBUID_List),1)
+    OBUID = OBUID_List;
+else
+    for ith_OBUID = 1:N_OBUIDs
+        current_OBUID = 0;
+    
+        for ith_OBUID_List = 1:length(OBUID_List)
+            if OBUID(ith_OBUID) == OBUID_List(ith_OBUID_List)
+                current_OBUID = ith_OBUID_List;
+            end
+        end
+
+        tENU_data{current_OBUID,1} = [tENU_data{current_OBUID,1};tENU(ith_OBUID,:)];
+        tLLA_data{current_OBUID,1} = [tLLA_data{current_OBUID,1};tLLA(ith_OBUID,:)];
+
+    end
+
+    tENU = tENU_data;
+    tLLA = tLLA_data;
+    OBUID = OBUID_List;
+end
+
+
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   _____       _
@@ -224,12 +269,9 @@ if flag_do_plots == 1
     
     flag_plot_headers_and_tailers = 1;
     
-    N_OBUIDs = length(OBUID);
-    OBUID_List = [OBUID(1)];
-    tENU_data = cell(2,1);
-    tLLA_data = cell(2,1);
     
-    if isempty(OBUID{1})
+    
+    if le(length(OBUID),1)
     
         plotFormat.Color = [0 0 1];
     
@@ -238,34 +280,19 @@ if flag_do_plots == 1
         subplot(1,2,2);
         fcn_plotRoad_plotTraceLL(tLLA(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
     else
-        
-        for ith_OBUID = 1:N_OBUIDs
-            current_OBUID = 0;
-    
-            for ith_OBUID_List = 1:length(OBUID_List)
-                if OBUID(ith_OBUID) == OBUID_List(ith_OBUID_List)
-                    current_OBUID = ith_OBUID_List;
-                end
-            end
-    
-            if current_OBUID == 0
-                OBUID_List = [OBUID_List; OBUID(ith_OBUID)];
-                current_OBUID = length(OBUID_List);
-            end
-    
-            tENU_data{current_OBUID,1} = [tENU_data{current_OBUID,1};tENU(ith_OBUID,2:3)];
-            tLLA_data{current_OBUID,1} = [tLLA_data{current_OBUID,1};tLLA(ith_OBUID,2:3)];
-    
-        end
     
         for ith_OBUID_List = 1:length(OBUID_List)
             color_vector = fcn_geometry_fillColorFromNumberOrName(ith_OBUID_List);
             plotFormat.Color = color_vector;
+
+            tENU_ith = tENU_data{ith_OBUID_List};
+            tLLA_ith = tLLA_data{ith_OBUID_List};
+
     
             subplot(1,2,1);
-            fcn_plotRoad_plotTraceXY(tENU_data{ith_OBUID_List}, (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+            fcn_plotRoad_plotTraceXY(tENU_ith(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
             subplot(1,2,2);
-            fcn_plotRoad_plotTraceLL(tLLA_data{ith_OBUID_List}, (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+            fcn_plotRoad_plotTraceLL(tLLA_ith(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
         end
         
     end

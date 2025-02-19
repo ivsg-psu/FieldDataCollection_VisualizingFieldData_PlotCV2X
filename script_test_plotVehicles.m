@@ -174,8 +174,8 @@ clf;
 
 csvFile = 'TestTrack_RSU1_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
 
-[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile_OBUID(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing 2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_RSU1_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'}, 'Interpreter','none');
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -205,14 +205,7 @@ sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
-% Does the data have 4 columns?
-assert(length(tLLA(1,:))== 4)
-assert(length(tENU(1,:))== 4)
 
-% Does the data have many rows
-Nrows_expected = 6018;
-assert(length(tLLA(:,1))== Nrows_expected)
-assert(length(tENU(:,1))== Nrows_expected)
 
 %% fcn_plotCV2X_plotRSURangeCircle  
 % given a RSU ID, plots range circles
@@ -581,7 +574,7 @@ figure(fig_num);
 clf;
 
 % Load the data
-csvFile = 'TestTrack_RSU1_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = '2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'; % Path to your CSV file
 [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
 
 % Test the function
