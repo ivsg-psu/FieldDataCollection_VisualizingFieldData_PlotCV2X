@@ -172,10 +172,10 @@ fig_num = 1;
 figure(fig_num);
 clf;
 
-csvFile = 'TestTrack_RSU1_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'; % Path to your CSV file
+csvFile = 'TestTrack_RSU3_LoadingDockRSU_InstallTest_2024_08_28.csv'; % Path to your CSV file
 
 [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_RSU1_PendulumRSU_InstallTest_InnerLane1_2024_08_09.csv'}, 'Interpreter','none');
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing TestTrack_RSU3_LoadingDockRSU_InstallTest_2024_08_28.csv'}, 'Interpreter','none');
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
@@ -197,13 +197,134 @@ fig_num = 111;
 figure(fig_num);
 clf;
 
-csvFile = '2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'; % Path to your CSV file
+csvFile = '2OBU_RSURange_TestTrack_RSU1_PendulumRSU_2025_03_03.csv'; % Path to your CSV file
 
 [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile_OBUID(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing 2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing 2OBU_RSURange_TestTrack_RSU1_PendulumRSU_2025_03_02.csv'}, 'Interpreter','none');
 
+hold on
+
+RSUsiteString = 'TestTrack';
+
+clear plotFormat
+plotFormat.LineStyle = '-';
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 50;
+plotFormat.Color = [1 0 1];
+
+[LLAsOfRSUs, numericRSUids] =fcn_plotCV2X_loadRSULLAs(RSUsiteString, (plotFormat), (-1));
+N_RSUs = length(numericRSUids(:,1));
+
+
+% Initialize variables where we save all data for animations
+h_geoplots{N_RSUs} = [];
+AllLatDatas{N_RSUs} = [];
+AllLonDatas{N_RSUs} = [];
+
+
+thisRSUnumber = 1;
+
+color_vector = fcn_geometry_fillColorFromNumberOrName(thisRSUnumber);
+
+clear plotFormat
+plotFormat.Color = color_vector;
+plotFormat.LineStyle = '-';
+plotFormat.LineWidth = 1;
+plotFormat.Marker = 'none';  % '.';
+plotFormat.MarkerSize = 10;
+
+[h_geoplot, AllLatData, AllLonData, AllXData, AllYData, ringColors] = fcn_plotCV2X_plotRSURangeCircle(thisRSUnumber, (plotFormat), (fig_num));
+
+% Check results
 % Was a figure created?
 assert(all(ishandle(fig_num)));
+
+% Were plot handles returned?
+assert(all(ishandle(h_geoplot(:))));
+
+Ncolors = 64;
+Nangles = 91;
+
+% Are the dimensions of Lat Long data correct?
+assert(Ncolors==length(AllLatData(:,1)));
+assert(Ncolors==length(AllLonData(:,1)));
+assert(Nangles==length(AllLonData(1,:)));
+assert(length(AllLatData(1,:))==length(AllLonData(1,:)));
+
+% Are the dimension of X Y data correct?
+assert(Ncolors==length(AllXData(:,1)));
+assert(Ncolors==length(AllYData(:,1)));
+assert(length(AllXData(1,:))==length(AllYData(1,:)));
+assert(length(AllXData(1,:))==length(AllLatData(1,:)));
+
+% Are the dimensions of the ringColors correct?
+assert(isequal(size(ringColors),[Ncolors 3]));
+
+% Save data for animations
+h_geoplots{ith_RSU} = h_geoplot;
+AllLatDatas{ith_RSU} = AllLatData;
+AllLonDatas{ith_RSU} = AllLonData;
+
+% Put BIG dots on top of the RSU "pole" locations
+% Plot the results
+color_vector = fcn_geometry_fillColorFromNumberOrName(1);
+
+clear plotFormat
+plotFormat.Color = color_vector;
+plotFormat.Marker = '.';
+plotFormat.MarkerSize = 50;
+plotFormat.LineStyle = 'none';
+plotFormat.LineWidth = 5;
+
+
+% Plot the RSU locations
+fcn_plotRoad_plotLL((LLAsOfRSUs(1,1:2)), (plotFormat), (fig_num));
+
+
+%%%% Do the animation 
+
+% Set viewable area:
+set(gca,'MapCenterMode','auto','ZoomLevelMode','auto');
+
+title(sprintf('Example %.0d: fcn_plotCV2X_plotRSURangeCircle',fig_num), 'Interpreter','none');
+subtitle('Showing animation of results');
+
+% Set the ring interval
+Nrings = length(AllLatData(:,1));
+skipInterval = Nrings/4;
+
+% Prep for animation file creation
+filename = 'fcn_plotCV2X_rangeRSU_circle.gif';
+flagFirstTime = 1;
+
+% Clear the plot by animating it for one ring cycle
+for timeIndex = 1:skipInterval+1
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplots{1}(1:end-1), AllLatDatas{1}, AllLonDatas{1}, skipInterval,-1);
+    % pause(0.02);
+    
+end
+
+% Create the animation file
+for timeIndex = 1:skipInterval
+    fcn_plotRoad_animateHandlesOnOff(timeIndex, h_geoplots{1}(1:end-1), AllLatDatas{1}, AllLonDatas{1}, skipInterval,-1);
+
+
+    % Create an animated gif?
+    if 1==1
+        frame = getframe(gcf);
+        current_image = frame2im(frame);
+        [A,map] = rgb2ind(current_image,256);
+        if flagFirstTime == 1
+            imwrite(A,map,filename,"gif","LoopCount",Inf,"DelayTime",0.1);
+            flagFirstTime = 0;
+        else
+            imwrite(A,map,filename,"gif","WriteMode","append","DelayTime",0.1);
+        end
+    end
+
+    pause(0.02);
+end
 
 
 
