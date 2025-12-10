@@ -83,7 +83,9 @@ The USDOT ADS Demonstration Grants Program appropriated funding for a "highly au
 The team has identified 17 common work zone scenarios/configurations in different urban, rural, and suburban settings on limited access facilities and urban arterials, typical to not only Pennsylvania, but other states too. Connected vehicle equipment will be added to the appropriate traffic control devices, construction workers and vehicles (collectively called work zone artifacts). Pavement markings and work zone artifacts will be enhanced with special coatings to improve visibility specifically for the AVs. For each of the work zone scenarios, the team will conduct simulation and closed track testing at the PSU test track.
 
 You can find more information about the ADS project at :
-<a href="https://www.penndot.pa.gov/ProjectAndPrograms/ResearchandTesting/Autonomous%20_Vehicles/Pages/ADS-Demonstration.aspx">PennDOT ADS Project</a>
+<a href="https://www.transportation.gov/policy-initiatives/automated-vehicles/ads-demonstration-grants">USDOT ADS Demonstration Grants</a>
+and
+<a href="https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/research-planning-innovation/researchandtesting/autonomous_vehicles/siteassets/ads-demonstration/ads-i.4-conops-final-v0-2022-03.pdf">PennDOT ADS Project: Concept of Operations for the Safe Integration of Automated Vehicles into Work Zones (SI-AVWZ) Project</a>
 
 This repository was created to better visualize and plot the location and time data collected by the CV2X communication system. The functions in this repo can also be used to plot geometric shapes that represenat range of coverage and Autonomous Vehicle (as a rectangle).
 
