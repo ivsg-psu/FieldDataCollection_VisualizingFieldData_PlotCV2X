@@ -95,7 +95,7 @@ This repository was created to better visualize and plot the location and time d
 
 ### Installation
 
-1. Make sure to run MATLAB 2020b or higher. Why? The "digitspattern" command used in the DebugTools utilities was released late 2020 and this is used heavily in the Debug routines. If debugging is shut off, then earlier MATLAB versions will likely work, and this has been tested back to 2018 releases.
+1. Make sure to run MATLAB 2020b or higher. Why? The "digitspattern" command used in the DebugTools utilities was released late 2020 and this is used heavily in the Debug routines. If debugging is shut off, then earlier MATLAB versions will likely work, and this has been tested back to 2018 releases. Also, make sure "Signal Processing Toolbox" is installed in the MATLAB.
 
 2. Clone the repo
 
