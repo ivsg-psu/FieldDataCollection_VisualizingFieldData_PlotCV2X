@@ -89,6 +89,23 @@ and
 
 This repository was created to better visualize and plot the location and time data collected by the CV2X communication system. The functions in this repo can also be used to plot geometric shapes that represenat range of coverage and Autonomous Vehicle (as a rectangle).
 
+This work is published on 2025 MECC. For publication version of the code, please see <a href="https://github.com/ivsg-psu/Publications_Conferences_2025MECC_CV2XPerformanceInWorkZones">Publications_Conferences_2025MECC_CV2XPerformanceInWorkZones Repo</a>
+
+<p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
+
+***
+
+<!-- RELATED REPO -->
+## Related Repo
+
+This work is published on 2025 MECC. For publication version of the code, please see <a href="https://github.com/ivsg-psu/Publications_Conferences_2025MECC_CV2XPerformanceInWorkZones">Publications_Conferences_2025MECC_CV2XPerformanceInWorkZones</a>.
+
+The Commsignia hardware setup can be found: <a href="https://github.com/ivsg-psu/Hardware_CV2X_Commsignia
+">Hardware_CV2X_Commsignia</a>. This repo is set to be private as it is only accessible to those who signed Commsignia NDAs.
+
+The cabinet setup and information at LTI test track can be found: <a href="https://github.com/ivsg-psu/Hardware_CV2X_TrackBoxes
+">Hardware_CV2X_TrackBoxes</a>.
+
 <p align="right">(<a href="#fielddatacollection_visualizingfielddata_plotcv2x">Back to top</a>)</p>
 
 ***
