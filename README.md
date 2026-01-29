@@ -119,7 +119,7 @@ The cabinet setup and information at LTI test track can be found: <a href="https
 2. Clone the repo
 
    ```sh
-   git clone https://github.com/ivsg-psu/fielddatacollection_visualizingfielddata_PlotCV2X/commits/main/
+   git clone https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotCV2X.git
    ```
 
 3. Run the main code in the root of the folder (script_demo_plotTestTrack.m). This will download the required utilities for this code, unzip the zip files into a Utilities folder (.\Utilities), and update the MATLAB path to include the Utility locations. This install process will only occur the first time. Note: to force the install to occur again, delete the Utilities directory
