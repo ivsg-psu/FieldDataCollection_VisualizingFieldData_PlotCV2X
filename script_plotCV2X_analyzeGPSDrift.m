@@ -151,14 +151,16 @@ setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 
 
 %% Plot data GPSDrift_Parked_6hr_2026_07_29.csv
-fig_num = 1;
+fig_num = 11;
 figure(fig_num);
 
 csvFile = 'Data/GPSDrift_Parked_6hr_2026_07_29.csv';
 
 [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
 sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing GPSDrift_Parked_6hr_2026_07_29.csv'}, 'Interpreter','none');
-
+%%
+fig_num = 1;
+figure(fig_num);
 
 clear plotFormat
 plotFormat.Marker = '.';
@@ -166,10 +168,13 @@ plotFormat.MarkerSize = 10;
 plotFormat.LineStyle = 'none';
 plotFormat.LineWidth = 5;
 
-flag_plot_headers_and_tailers = 0;
+flag_plot_headers_and_tailers = 1;
 
 plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceXY(tENU(1000:2000,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+subplot(1,2,1);
+fcn_plotRoad_plotTraceXY(tENU(2000:109494,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+subplot(1,2,2);
+fcn_plotRoad_plotTraceLL(tLLA(2000:109494,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
 %%
 fig_num = 2;
@@ -184,20 +189,77 @@ title('Live X-Y Simulation Over Time');
 % 3. Set static axis limits to prevent jarring resizing
 axis([min(tENU(:,2))-1, max(tENU(:,2))+1, min(tENU(:,3))-1, max(tENU(:,3))+1]);
 
+ENU = tENU(2000:109494,:);
+
 % 4. Simulation loop
-for k = 1:length(tENU(:,1))
+for k = 1:length(ENU(:,1))
     % Add the current X and Y point to the animated line
-    addpoints(h, tENU(k,2), tENU(k,3));
+    addpoints(h, ENU(k,2), ENU(k,3));
     
     % Update the plot window title to show current timestamp
-    title(sprintf('Simulation Time: %.2f s', tENU(k,1) - tENU(1,1)));
+    title(sprintf('Simulation Time: %.2f s', ENU(k,1) - ENU(1,1)));
     
     % Pause briefly to control simulation speed (e.g., matching timestamps)
-    if k < length(tENU(:,1))
-        pause(0.1*(tENU(k+1,1) - tENU(k,1))); 
+    if k < length(ENU(:,1))
+        pause(0.00001*(ENU(k+1,1) - ENU(k,1))); 
     end
 end
 
+
+%% Plot data GPSDrift_Parked_6hr_2026_07_30.csv
+fig_num = 333;
+figure(fig_num);
+
+csvFile = 'Data/GPSDrift_Parked_6hr_2026_07_30.csv';
+
+[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing GPSDrift_Parked_6hr_2026_07_30.csv'}, 'Interpreter','none');
+%%
+fig_num = 3;
+figure(fig_num);
+
+clear plotFormat
+plotFormat.Marker = '.';
+plotFormat.MarkerSize = 10;
+plotFormat.LineStyle = 'none';
+plotFormat.LineWidth = 5;
+
+flag_plot_headers_and_tailers = 1;
+
+plotFormat.Color = [0 0 1];
+subplot(1,2,1);
+fcn_plotRoad_plotTraceXY(tENU(2000:109494,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+subplot(1,2,2);
+fcn_plotRoad_plotTraceLL(tLLA(2000:109494,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+
+%%
+fig_num = 4;
+figure(fig_num);
+
+h = animatedline('Color', 'b', 'LineWidth', 2, 'Marker', 'o');
+grid on;
+xlabel('X Position');
+ylabel('Y Position');
+title('Live X-Y Simulation Over Time');
+
+% 3. Set static axis limits to prevent jarring resizing
+axis([min(tENU(:,2))-1, max(tENU(:,2))+1, min(tENU(:,3))-1, max(tENU(:,3))+1]);
+
+ENU = tENU(2000:109494,:);
+
+% 4. Simulation loop
+for k = 1:length(ENU(:,1))
+    % Add the current X and Y point to the animated line
+    addpoints(h, ENU(k,2), ENU(k,3));
+    
+    % Update the plot window title to show current timestamp
+    title(sprintf('Simulation Time: %.2f s', ENU(k,1) - ENU(1,1)));
+    
+    % Pause briefly to control simulation speed (e.g., matching timestamps)
+    if k < length(ENU(:,1))
+        pause(0.00001*(ENU(k+1,1) - ENU(k,1))); 
+    end
+end
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   ______                _   _
