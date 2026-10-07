@@ -150,80 +150,15 @@ setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
 
-%% Load all the site data
-
-% What files are in the data directory that start with the name 'TestTrack'?
-dirname = cat(2,'Data',filesep,'GPSDrift*');
-dirList = dir(dirname);
-Nfiles = length(dirList);
-
-% Initialize arrays
-fnames{Nfiles} = '';
-tLLAs{Nfiles} = [];
-tENUs{Nfiles} = [];
-velocities{Nfiles} = [];
-anglesENU{Nfiles} = [];
-compassHeadings{Nfiles} = [];
-
-alltLLAs = [];
-alltENUs = [];
-allRSUs = [];
-allVelocities = [];
-allVelocityDisparities = [];
-allVelocityDisparitiesSameHeading = [];
-allCompassHeadings = [];
-
-for ith_file = 1:Nfiles
-    % Get current filename
-    csvFile = dirList(ith_file).name;
-
-    fprintf(1,'Loading data from file: %s ...',csvFile);
-
-    % Load the data
-    [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
-
-    % Determine which RSU this belongs to. The number is in the 10th digit
-    RSUcharacter = csvFile(14);
-    RSUdigit = str2double(RSUcharacter);
-
-
-    % Group the data into continuous "modes", e.g. data sets that have the
-    % same intercept when plotting time versus index
-    [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
-
-    % Calculate the velocities
-    [velocity, angleENUradians, compassHeadingDegrees] = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
-
-    % Calculate the velocity disparity
-    searchRadiusAndAngles = 20;
-    speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (-1));
-
-    searchRadiusAndAngles = [20 15*pi/180];
-    speedDisparitySameHeading = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (-1));
-
-    % Save results
-    fnames{ith_file} = csvFile;
-    tLLAs{ith_file} = tLLA;
-    tENUs{ith_file} = tENU;
-    velocities{ith_file} = velocity;
-    anglesENU{Nfiles} = angleENUradians;
-    compassHeadings{Nfiles} = compassHeadingDegrees;
-
-    allRSUs = [allRSUs; RSUdigit*ones(length(tLLA(:,1)),1)]; %#ok<AGROW>
-    allVelocities = [allVelocities; velocity]; %#ok<AGROW>
-    allVelocityDisparities = [allVelocityDisparities; speedDisparity]; %#ok<AGROW>
-    allVelocityDisparitiesSameHeading = [allVelocityDisparitiesSameHeading; speedDisparitySameHeading]; %#ok<AGROW>
-
-    alltLLAs = [alltLLAs; tLLA]; %#ok<AGROW>
-    alltENUs = [alltENUs; tENU]; %#ok<AGROW>
-    allCompassHeadings = [allCompassHeadings; compassHeadingDegrees]; %#ok<AGROW>
-
-    fprintf(1,'done.\n');
-end
-
-%% Plot data
+%% Plot data GPSDrift_Parked_6hr_2026_07_29.csv
 fig_num = 1;
 figure(fig_num);
+
+csvFile = 'Data/GPSDrift_Parked_6hr_2026_07_29.csv';
+
+[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing GPSDrift_Parked_6hr_2026_07_29.csv'}, 'Interpreter','none');
+
 
 clear plotFormat
 plotFormat.Marker = '.';
@@ -234,7 +169,7 @@ plotFormat.LineWidth = 5;
 flag_plot_headers_and_tailers = 0;
 
 plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceXY(alltENUs(1000:2000,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+fcn_plotRoad_plotTraceXY(tENU(1000:2000,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
 %%
 fig_num = 2;
@@ -247,19 +182,19 @@ ylabel('Y Position');
 title('Live X-Y Simulation Over Time');
 
 % 3. Set static axis limits to prevent jarring resizing
-axis([min(alltENUs(:,2))-1, max(alltENUs(:,2))+1, min(alltENUs(:,3))-1, max(alltENUs(:,3))+1]);
+axis([min(tENU(:,2))-1, max(tENU(:,2))+1, min(tENU(:,3))-1, max(tENU(:,3))+1]);
 
 % 4. Simulation loop
-for k = 1:length(alltENUs(:,1))
+for k = 1:length(tENU(:,1))
     % Add the current X and Y point to the animated line
-    addpoints(h, alltENUs(k,2), alltENUs(k,3));
+    addpoints(h, tENU(k,2), tENU(k,3));
     
     % Update the plot window title to show current timestamp
-    title(sprintf('Simulation Time: %.2f s', alltENUs(k,1) - alltENUs(1,1)));
+    title(sprintf('Simulation Time: %.2f s', tENU(k,1) - tENU(1,1)));
     
     % Pause briefly to control simulation speed (e.g., matching timestamps)
-    if k < length(alltENUs(:,1))
-        pause(0.1*(alltENUs(k+1,1) - alltENUs(k,1))); 
+    if k < length(tENU(:,1))
+        pause(0.1*(tENU(k+1,1) - tENU(k,1))); 
     end
 end
 
