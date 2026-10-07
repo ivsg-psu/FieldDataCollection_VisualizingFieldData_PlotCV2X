@@ -1,9 +1,9 @@
-function [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile,varargin)
-%fcn_plotCV2X_loadDataFromFile  loads time+ENU and time+LLA data from file
+function [LLA, ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile,varargin)
+%fcn_plotHDMap_loadDataFromFile  loads ENU and LLA data from file
 %
 % FORMAT:
 %
-%       [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
+%       [LLA, ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num))
 %
 % INPUTS:
 %       csvFile: A string variable containing the name of the .csv file.
@@ -20,10 +20,12 @@ function [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile,varargin)
 %
 % OUTPUTS:
 %
-%      tLLA: the [time Latitude Longitude Altitude] data as an [Nx4] vector
+%      LLA: the [Latitude Longitude Altitude] data as an [Nx4] vector
 %
-%      tENU: the [time East North Up] data as an [Nx4] vector, using the
+%      ENU: the [East North Up] data as an [Nx4] vector, using the
 %      origin as set in the main demo script
+%      
+%      MarkerID: the lane marker ID data as an [Nx1] vector
 %
 % DEPENDENCIES:
 %
@@ -129,54 +131,25 @@ end
 % Read csv file
 fileID = fopen(csvFile,'r');
 % Read the header
-header_text = textscan(fileID,'%s %s %s %s %s',1,'Delimiter',',');
+header_text = textscan(fileID,'%s %s %s',1,'Delimiter',',');
 
 % Read the data
-data = textscan(fileID,'%f %f %f %s %s','Delimiter',',');
+data = textscan(fileID,'%f %f %f','Delimiter',',');
 fclose(fileID);
 
 % Check the data
 Ndata = length(data{1});
 assert(Ndata == length(data{2}));
 assert(Ndata == length(data{3}));
-assert(Ndata == length(data{4}));
-%assert(Ndata == length(data{5}));
-
-% Convert the time data from string into seconds
-timeSeconds = nan(Ndata,1); % Initialize the variable
-
-% Break the data into parts using ":" as the separator
-for ith_entry = 1:Ndata
-    timeString = data{4}(ith_entry);
-    splitStr = regexp(timeString,':','split');
-    cellContents = splitStr{1};
-    if length(cellContents)==3
-        time_hours = str2double(cellContents{1});
-        time_minutes = str2double(cellContents{2});
-        time_60seconds = str2double(cellContents{3});
-    elseif length(cellContents)==2
-        time_hours = 0;
-        time_minutes = str2double(cellContents{1});
-        time_60seconds = str2double(cellContents{2});
- 
-    else
-        error('weird cell contents found!');
-    end
-
-    % Convert this into seconds
-    timeSeconds(ith_entry,1) = time_hours*3600 + time_minutes*60 + time_60seconds;
-end
 
 % Extract latitude, longitude, elevation, and time values, here we get time
 % as NaNs
-lat = data{1}/10000000;
-lon = data{2}/10000000;
-elv = data{3}/10;
+lat = data{1}/1.0;
+lon = data{2}/1.0;
+elv = data{3}/1.0;
 
 % Save result in output format
-tLLA = [timeSeconds lat lon elv];
-OBUID = [data{5}];
-OBUID = convertCharsToStrings(OBUID);
+LLA = [lat lon elv];
 
 % convert LLA to ENU
 reference_latitude = 40.86368573;
@@ -194,7 +167,7 @@ gps_object = GPS(reference_latitude,reference_longitude,reference_altitude); % L
 ENU_coordinates = gps_object.WGSLLA2ENU(lat,lon,elv,reference_latitude,reference_longitude,reference_altitude);
 
 % Save result in output format
-tENU = [timeSeconds ENU_coordinates];
+ENU = ENU_coordinates;
 
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,10 +200,10 @@ if flag_do_plots == 1
 
 
     subplot(1,2,1);
-    fcn_plotRoad_plotTraceXY(tENU(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+    fcn_plotRoad_plotTraceXY(ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
     subplot(1,2,2);
-    fcn_plotRoad_plotTraceLL(tLLA(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+    fcn_plotRoad_plotTraceLL(LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
 end
 

@@ -54,9 +54,9 @@ library_folders{ith_library} = {'Functions', 'Data'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip'; 
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'PathClass_v2024_03_14';
+library_name{ith_library}    = 'PathClass_v2025_11_13';
 library_folders{ith_library} = {'Functions'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/archive/refs/tags/PathClass_v2024_03_14.zip';
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/archive/refs/tags/PathClass_v2025_11_13.zip';
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'GPSClass_v2023_06_29';
@@ -77,6 +77,13 @@ ith_library = ith_library+1;
 library_name{ith_library}    = 'BreakDataIntoLaps_v2023_08_25';
 library_folders{ith_library} = {'Functions'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps/archive/refs/tags/BreakDataIntoLaps_v2023_08_25.zip';
+
+
+ith_library = ith_library+1;
+library_name{ith_library}    = 'AlignCoordinates_v2026_02_18';
+library_folders{ith_library} = {'Functions'};
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_AlignCoordinates/archive/refs/tags/AlignCoordinates_v2026_02_18.zip';
+
 
 
 %% Clear paths and folders, if needed
@@ -137,9 +144,8 @@ setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 % shifting, when doing geoplot. This is added because the geoplot images
 % are very, very slightly off at the test track, which is confusing when
 % plotting data above them.
-setenv('MATLABFLAG_PLOTCV2X_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
-setenv('MATLABFLAG_PLOTCV2X_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
-
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
 
 %% Set environment flags for input checking
 % These are values to set if we want to check inputs or do debugging
@@ -164,28 +170,56 @@ setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 % https://patorjk.com/software/taag/#p=display&f=Big&t=Core%20%20Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-%% Load Dynamic Map Platform HDMap Lane Marker Data
+% %% Load Dynamic Map Platform HDMap Lane Marker Data
+% 
+% fig_num = 1;
+% figure(fig_num);
+% clf;
+% 
+% csvFile = 'LaneMarkerLLA.csv'; % Path to your CSV file
+% 
+% [DMP_LLA, DMP_ENU, DMP_MarkerID] = fcn_plotDMPHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
+% sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
+% 
+% % Was a figure created?
+% assert(all(ishandle(fig_num)));
+% 
+% % Does the data have 3 columns?
+% assert(length(DMP_LLA(1,:))== 3)
+% assert(length(DMP_ENU(1,:))== 3)
 
-fig_num = 1;
+%% Load Mapping Van HDMap RIGHT Lane Marker Data
+
+fig_num = 21;
 figure(fig_num);
-clf;
 
-csvFile = 'LaneMarkerLLA.csv'; % Path to your CSV file
+csvFile = 'LaneMarkerRight_Valid_LLA.csv'; % Path to your CSV file
 
-[DMP_LLA, DMP_ENU, DMP_MarkerID] = fcn_plotDMPHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
+[MVR_LLA, MVR_ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
 sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
+
+% removing outliner
+N = 2633-2462;
+x = linspace(MVR_ENU(2462, 1), MVR_ENU(2634, 1), N);
+y = linspace(MVR_ENU(2462, 2), MVR_ENU(2634, 2), N);
+
+MVR_ENU(2463:2633, 1:2) = [x(:), y(:)];
+MVR_ENU(901, :) = [];
+MVR_ENU(822, :) = [];
+MVR_ENU(575, :) = [];
+MVR_ENU(488, :) = [];
+MVR_ENU(454, :) = [];
+MVR_ENU(409, :) = [];
 
 % Was a figure created?
 assert(all(ishandle(fig_num)));
 
 % Does the data have 3 columns?
-assert(length(DMP_LLA(1,:))== 3)
-assert(length(DMP_ENU(1,:))== 3)
-
-
+assert(length(MVR_LLA(1,:))== 3)
+assert(length(MVR_ENU(1,:))== 3)
 %% Load Mapping Van HDMap LEFT Lane Marker Data
 
-fig_num = 21;
+fig_num = 22;
 figure(fig_num);
 
 csvFile = 'LaneMarkerLeft_Valid_LLA.csv'; % Path to your CSV file
@@ -199,23 +233,6 @@ assert(all(ishandle(fig_num)));
 % Does the data have 3 columns?
 assert(length(MVL_LLA(1,:))== 3)
 assert(length(MVL_ENU(1,:))== 3)
-
-%% Load Mapping Van HDMap RIGHT Lane Marker Data
-
-fig_num = 22;
-figure(fig_num);
-
-csvFile = 'LaneMarkerRight_Valid_LLA.csv'; % Path to your CSV file
-
-[MVR_LLA, MVR_ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
-
-% Was a figure created?
-assert(all(ishandle(fig_num)));
-
-% Does the data have 3 columns?
-assert(length(MVR_LLA(1,:))== 3)
-assert(length(MVR_ENU(1,:))== 3)
 
 %% Plot Lane Marker data form both source
 
@@ -232,67 +249,851 @@ flag_plot_headers_and_tailers = 0;
 
 
 subplot(1,2,1);
-plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceXY(DMP_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 0];
-fcn_plotRoad_plotTraceXY(MVL_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+% plotFormat.Color = [1 0 0];
+% fcn_plotRoad_plotTraceXY(DMP_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 plotFormat.Color = [1 0 1];
+fcn_plotRoad_plotTraceXY(MVL_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 0 1];
 fcn_plotRoad_plotTraceXY(MVR_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
 subplot(1,2,2);
-plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceLL(DMP_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 0];
-fcn_plotRoad_plotTraceLL(MVL_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+% plotFormat.Color = [1 0 0];
+% fcn_plotRoad_plotTraceLL(DMP_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 plotFormat.Color = [1 0 1];
+fcn_plotRoad_plotTraceLL(MVL_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 0 1];
 fcn_plotRoad_plotTraceLL(MVR_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
+%'Dynamic Map Platform Lane Marker Data' Not included
+legend('Base Station','Mapping Van Lane Marker Data (LEFT)', 'Mapping Van Lane Marker Data (Right)')
 
-legend('Base Station','Dynamic Map Platform Lane Marker Data','Mapping Van Lane Marker Data (LEFT)', 'Mapping Van Lane Marker Data (Right)')
 
-%% fit a middle line for hte left double-yellow lane
+%% Offset right lane to get a reference lane for the double yellow lane
+fig_num = 31;
+figure(fig_num);
 
-x = MVL_ENU(:,1);
-y =  MVL_ENU(:,2);
+MVL_reference_Lane = fcn_Path_fillOffsetPathsAboutPath(MVR_ENU(:,1:2), 2.75);
+
+MVL_reference_Lane = MVL_reference_Lane{1,1};
+
+plot(MVL_reference_Lane(:,1), MVL_reference_Lane(:,2), 'r', 'LineWidth',2);
+plotFormat.Color = [1 0 1];
+fcn_plotRoad_plotTraceXY(MVL_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 0 1];
+fcn_plotRoad_plotTraceXY(MVR_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+xlabel('X'); ylabel('Y')
+grid on
+axis equal
+
+%% Convert the double yellow lane and the reference lane into ST coordinates to splite left and right yellow lane
+fig_num = 32;
+figure(fig_num);
+
+flag_rounding_type = 3;
+
+Left_Lane_ST_points = fcn_Path_convertXY2St(MVL_reference_Lane, MVL_ENU(:,1:2), (flag_rounding_type));
+ReferenceLane_ST_points = fcn_Path_convertXY2St(MVL_reference_Lane, MVL_reference_Lane, (flag_rounding_type));
+
+% subplot(1,2,1);
+% hold on;
+% grid on;
+% axis equal;
+% 
+% plot(MVL_ENU(:,1),MVL_ENU(:,2),'b.-','LineWidth',3,'MarkerSize',20)
+% plot(MVL_reference_Lane(:,1),MVL_reference_Lane(:,2),'r.-','LineWidth',3,'MarkerSize',20)
+% title('XY coordinates');
+% 
+% subplot(1,2,2);
+
+% Define the line to splite left and right lane of the double yellow lane
+Splitting_points = [-100,0.85; 71,0.85; 72,0.87; 220,0.87; 221, 0.84; 533, 0.84; 558, 0.4; 932, 0.4; 996, 0.675; 1040, 0.55; 1370, 0.55;1460,0.775; 1550, 0.81];
+hold on;
+grid on;
+% axis equal;
+
+scatter(Left_Lane_ST_points(:,1),Left_Lane_ST_points(:,2),'b','filled')
+scatter(ReferenceLane_ST_points(:,1),ReferenceLane_ST_points(:,2),'r','filled')
+%plot(Splitting_points(:,1),Splitting_points(:,2),'g','LineWidth',3,'MarkerSize',20)
+title('St coordinates');
+% Left_Lane_ST_points = fcn_Path_convertXY2St(MVL_reference_Lane, MVL_ENU(:,1:2), (flag_rounding_type), (fig_num));
+
+%% Splitting left and right lane of the double yellow lane
+
+fig_num = 33;
+figure(fig_num);
+
+% Interpolate path y-values at x locations
+Right_Lane_y_interp = interp1(Splitting_points(:,1), Splitting_points(:,2), Left_Lane_ST_points(:,1), 'linear', 'extrap');
+MVL_left_yellow_ST = Left_Lane_ST_points(Left_Lane_ST_points(:,2) > Right_Lane_y_interp, :);
+MVL_right_yellow_ST = Left_Lane_ST_points(Left_Lane_ST_points(:,2) < Right_Lane_y_interp, :);
+
+hold on;
+grid on;
+
+plot(MVL_left_yellow_ST(:,1),MVL_left_yellow_ST(:,2),'b.-','LineWidth',3,'MarkerSize',20)
+plot(MVL_right_yellow_ST(:,1),MVL_right_yellow_ST(:,2),'g','LineWidth',3,'MarkerSize',20)
+plot(ReferenceLane_ST_points(:,1),ReferenceLane_ST_points(:,2),'r.-','LineWidth',3,'MarkerSize',20)
+
+title('St coordinates');
+
+%% Convert splitted lane into XY coordinate system
+
+fig_num = 34;
+figure(fig_num);
+
+flag_snap_type = 1;
+MVL_left_yellow = fcn_Path_convertSt2XY(MVL_reference_Lane,MVL_left_yellow_ST, flag_snap_type);
+MVL_right_yellow = fcn_Path_convertSt2XY(MVL_reference_Lane,MVL_right_yellow_ST, flag_snap_type);
+
+hold on;
+grid on;
+axis equal;
+
+plot(MVL_left_yellow(:,1),MVL_left_yellow(:,2),'b.-','LineWidth',3,'MarkerSize',20)
+plot(MVL_right_yellow(:,1),MVL_right_yellow(:,2),'g.-','LineWidth',3,'MarkerSize',20)
+plot(MVL_reference_Lane(:,1),MVL_reference_Lane(:,2),'r.-','LineWidth',3,'MarkerSize',20)
+title('XY coordinates');
+
+%% Find the Lane Center of the double yellow lane
+fig_num = 35;
+figure(fig_num);
+
+flag_rounding_type = 3;
+
+Left_yellow_ST_points = fcn_Path_convertXY2St(MVL_left_yellow, MVL_left_yellow, (flag_rounding_type));
+Right_yellow_ST_points = fcn_Path_convertXY2St(MVL_left_yellow, MVL_right_yellow, (flag_rounding_type));
+
+Right_Lane_y_interp = interp1(Left_yellow_ST_points(:,1), Left_yellow_ST_points(:,2), Right_yellow_ST_points(:,1), 'linear', 'extrap');
+
+Mid_Lane_ST = [Right_yellow_ST_points(:,1) , (Right_Lane_y_interp+Right_yellow_ST_points(:,2))/2];
+
+subplot(2,1,1);
+
+hold on;
+grid on;
+
+h1 = plot(Left_yellow_ST_points(:,1),Left_yellow_ST_points(:,2),'b.-','LineWidth',3,'MarkerSize',20);
+h2 =plot(Mid_Lane_ST(:,1),Mid_Lane_ST(:,2),'r.-','LineWidth',3,'MarkerSize',20);
+h3 =plot(Right_yellow_ST_points(:,1),Right_yellow_ST_points(:,2),'g','LineWidth',3,'MarkerSize',20);
+title('St coordinates');
+
+flag_snap_type = 1;
+MVL_Mid_Lane = fcn_Path_convertSt2XY(MVL_left_yellow,Mid_Lane_ST, flag_snap_type);
+
+subplot(2,1,2);
+hold on;
+grid on;
+axis equal;
+
+plot(MVL_left_yellow(:,1),MVL_left_yellow(:,2),'b.-','LineWidth',3,'MarkerSize',20)
+plot(MVL_Mid_Lane(:,1),MVL_Mid_Lane(:,2),'r.-','LineWidth',3,'MarkerSize',20)
+plot(MVL_right_yellow(:,1),MVL_right_yellow(:,2),'g.-','LineWidth',3,'MarkerSize',20)
+
+title('XY coordinates');
+
+legend([h1 h2 h3], {'Left Double-Yellow Lane','Mid Lane of Double-Yellow Lane','Right Double-Yellow Lane'})
+
+
+%% Find the Lane Center using the lane maker data
+% fit a middle line for the single-white lane
+
+MVR_x = MVR_ENU(:,1);
+MVR_y =  MVR_ENU(:,2);
 
 % Create a parameter t along the points (can be arc length or just index)
-t = linspace(0, 1, length(x));
+MVR_t = linspace(0, 1, length(MVR_x));
 
 % Fit splines separately for x(t) and y(t)
-tt = linspace(0,1,200);  % smooth parameter values
-xx = spline(t, x, tt);
-yy = spline(t, y, tt);
+MVR_tt = linspace(0,1,3032);  % smooth parameter values
+MVR_xx = spline(MVR_t, MVR_x, MVR_tt);
+MVR_yy = spline(MVR_t, MVR_y, MVR_tt);
+
+
+% Compute a center line between left and right lane markers
+x_mid = (MVL_xx + MVR_xx) / 2;
+y_mid = (MVL_yy + MVR_yy) / 2;
 
 % Plot
-figure
-scatter(x, y, 'filled'); hold on
-plot(xx, yy, 'r', 'LineWidth',2)
+fig_num = 4;
+figure(fig_num)
+
+subplot(1,2,1);
+h1 = scatter(MVL_x, MVL_y, 'm', 'filled'); hold on
+h2 = scatter(MVL_xx, MVL_yy, 'r', 'LineWidth',2);
+plot(MVL_xx, MVL_yy, 'r', 'LineWidth',2);
+
+h3 = scatter(MVR_x, MVR_y,'b', 'filled'); hold on
+h4 = scatter(MVR_xx, MVR_yy, 'c', 'LineWidth',2);
+plot(MVR_xx, MVR_yy, 'c', 'LineWidth',2);
+h5 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+
+xlabel('X'); ylabel('Y')
+grid on
+axis equal
+subplot(1,2,2);
+
+scatter(MVL_x, MVL_y, 'm', 'filled'); hold on
+plot(MVL_xx, MVL_yy, 'r', 'LineWidth',2); 
+scatter(MVR_x, MVR_y,'b', 'filled'); hold on
+plot(MVR_xx, MVR_yy, 'c', 'LineWidth',2);
+plot(x_mid, y_mid, 'k', 'LineWidth',2);
+
+
+xlabel('X'); ylabel('Y')
+grid on
+axis equal
+
+legend([h1 h2 h3 h4 h5], {'Left Double-Yellow Lane','Fitted Left Line','Right Single-White Lane', 'Fitted Right Lane', 'Lane Center'})
+
+
+
+%% Test Data Set Load CV2X data
+
+
+% TestTrack_RSU1_PendulumRSU_InstallTest_OuterLane1_2024_08_09
+% TestTrack_RSU1_PendulumRSU_InstallTest_OuterLane2_2024_08_09
+
+
+%% Load CV2X data
+
+% loads time+ENU and time+LLA data from file
+% [tLLA, tENU] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num))
+
+fig_num = 5;
+figure(fig_num);
+clf;
+
+csvFile = '2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'; % Path to your CSV file
+
+[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing 2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+
+% Pre-Process the data to remove the not driving data at the beginning and
+% the end
+
+tENU = tENU(2200:5000,:);
+tLLA = tLLA(2200:5000,:);
+OBUID = OBUID(2200:5000,:);
+
+% seperate data for different OBUID (2a3c600d and 2a3c603c) data 
+tENU_2a3c600d = [];
+tLLA_2a3c600d = [];
+tENU_2a3c603c = [];
+tLLA_2a3c603c = [];
+
+
+for ith_ID = 1:length(OBUID)
+    if OBUID(ith_ID,1) == '2a3c600d'
+        tENU_2a3c600d = [tENU_2a3c600d; tENU(ith_ID,:)];
+        tLLA_2a3c600d = [tLLA_2a3c600d; tLLA(ith_ID,:)];
+    else
+        tENU_2a3c603c = [tENU_2a3c603c; tENU(ith_ID,:)];
+        tLLA_2a3c603c = [tLLA_2a3c603c; tLLA(ith_ID,:)];
+
+    end
+end
+
+fig_num = 52;
+figure(fig_num);
+clf;
+clear plotFormat
+plotFormat.Marker = '.';
+plotFormat.MarkerSize = 10;
+plotFormat.LineStyle = 'none';
+plotFormat.LineWidth = 5;
+
+flag_plot_headers_and_tailers = 0;
+
+
+subplot(1,2,1);
+% plotFormat.Color = [0 0 1];
+% fcn_plotRoad_plotTraceXY(tENU_2a3c600d(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 1 1];
+p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+
+legend([p1 p2], {'Lane Center', 'CV2X Data (OBU ID: 2a3c603c)'})
+% 
+subplot(1,2,2);
+% plotFormat.Color = [0 0 1];
+% fcn_plotRoad_plotTraceLL(tLLA_2a3c600d(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 1 1];
+fcn_plotRoad_plotTraceLL(tLLA_2a3c603c(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+
+
+sgtitle({sprintf('RUN 1:Pre-Processed CV2X Data with OBU ID (2a3c600d) with Center Lane ',fig_num),'Showing 2OBU_FollowEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+
+
+%% %% method ICP for 2a3c600d ------ not used
+% 
+% % CV2X trajectory
+% P = [tENU_2a3c600d(1202:end,2) tENU_2a3c600d(1202:end,3)];
+% 
+% % HD map points
+% Q = [x_mid' y_mid'];
+% 
+% maxIter = 50;
+% 
+% % --- initialize total transform ---
+% R_total = eye(2);
+% t_total = [0; 0];
+% 
+% for k = 1:maxIter
+% 
+%     % find nearest neighbors
+%     idx = knnsearch(Q,P);
+%     Qmatch = Q(idx,:);
+% 
+%     % compute centroids
+%     p_mean = mean(P);
+%     q_mean = mean(Qmatch);
+% 
+%     % center data
+%     P_c = P - p_mean;
+%     Q_c = Qmatch - q_mean;
+% 
+%     % compute covariance
+%     H = P_c' * Q_c;
+% 
+%     % SVD
+%     [U,~,V] = svd(H);
+% 
+%     R = V*U';
+% 
+%     t = q_mean' - R*p_mean';
+% 
+%     % apply transform
+%     P = (R*P')' + t';
+% 
+%     % --- accumulate transform ---
+%     R_total = R * R_total;
+%     t_total = R * t_total + t;
+% 
+% end
+% 
+% P_corrected = P;
+% 
+% % Correct for the rest of the lap
+% 
+% Correction = [tENU_2a3c600d(:,2) tENU_2a3c600d(:,3)];
+% P_corrected_CV2X = (R_total*Correction')' + t_total';
+% 
+% fig_num = 61;
+% figure(fig_num)
+% 
+% p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+% plotFormat.Color = [0 0 1];
+% p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c(:,2:3), (plotFormat), (0), (fig_num));
+% plotFormat.Color = [0 1 0];
+% p3 = fcn_plotRoad_plotTraceXY(P_corrected, (plotFormat), (0), (fig_num));
+% plotFormat.Color = [0 1 1];
+% p4 = fcn_plotRoad_plotTraceXY(P_corrected_CV2X, (plotFormat), (0), (fig_num));
+% 
+% xlabel('X'); ylabel('Y')
+% title('Parametric Spline Fit for Oval Curve')
+% grid on
+% axis equal
+% 
+% legend([p1 p2 p3 p4], {'Lane Center', 'CV2X Data (OBU ID: 2a3c600d)', 'Section Used for ICP Correction','Corrected CV2X Data (OBU ID: 2a3c600d)'})
+
+
+%% Load Run 2 CV2X data for Test
+
+fig_num = 7;
+figure(fig_num);
+clf;
+
+csvFile = '2OBU_MeetUpEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'; % Path to your CSV file
+
+[tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (fig_num));
+sgtitle({sprintf('Example %.0d: fcn_plotCV2X_loadDataFromFile',fig_num),'Showing 2OBU_MeetUpEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+
+% Was a figure created?
+assert(all(ishandle(fig_num)));
+
+% Does the data have 4 columns?
+assert(length(tLLA(1,:))== 4)
+assert(length(tENU(1,:))== 4)
+
+% Pre-Process the data to remove the not driving data at the beginning and
+% the end
+
+tENU = tENU(1600:6100,:);
+tLLA = tLLA(1600:6100,:);
+OBUID = OBUID(1600:6100,:);
+
+% seperate data for different OBUID (2a3c600d and 2a3c603c) data 
+tENU_2a3c600d_Run2 = [];
+tLLA_2a3c600d_Run2 = [];
+tENU_2a3c603c_Run2 = [];
+tLLA_2a3c603c_Run2 = [];
+
+
+for ith_ID = 1:length(OBUID)
+    if OBUID(ith_ID,1) == '2a3c600d'
+        tENU_2a3c600d_Run2 = [tENU_2a3c600d_Run2; tENU(ith_ID,:)];
+        tLLA_2a3c600d_Run2 = [tLLA_2a3c600d_Run2; tLLA(ith_ID,:)];
+    else
+        tENU_2a3c603c_Run2 = [tENU_2a3c603c_Run2; tENU(ith_ID,:)];
+        tLLA_2a3c603c_Run2 = [tLLA_2a3c603c_Run2; tLLA(ith_ID,:)];
+
+    end
+end
+
+
+fig_num = 72;
+figure(fig_num);
+clf;
+clear plotFormat
+plotFormat.Marker = '.';
+plotFormat.MarkerSize = 10;
+plotFormat.LineStyle = 'none';
+plotFormat.LineWidth = 5;
+
+flag_plot_headers_and_tailers = 0;
+
+
+subplot(1,2,1);
+% plotFormat.Color = [0 0 1];
+% fcn_plotRoad_plotTraceXY(tENU_2a3c600d_Run2(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 1 1];
+p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+
+legend([p1 p2], {'Lane Center', 'CV2X Data (OBU ID: 2a3c603c)'})
+
+subplot(1,2,2);
+% plotFormat.Color = [0 0 1];
+% fcn_plotRoad_plotTraceLL(tLLA_2a3c600d_Run2(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+plotFormat.Color = [0 1 1];
+fcn_plotRoad_plotTraceLL(tLLA_2a3c603c_Run2(:,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+
+
+sgtitle({sprintf('Run 2: Pre-Processed CV2X Data with OBU ID (2a3c603c) ',fig_num),'Showing 2OBU_MeetUpEachOther_TestTrack_RSU1_PendulumRSU_2025_02_11.csv'}, 'Interpreter','none');
+
+
+%% ICP method for 2a3c603c Run1 and Run2
+
+% CV2X trajectory
+P = [tENU_2a3c603c(:,2) tENU_2a3c603c(:,3)];
+
+% HD map points
+Q = [x_mid' y_mid'];
+
+maxIter = 50;
+
+% --- initialize total transform ---
+R_total = eye(2);
+t_total = [0; 0];
+
+for k = 1:maxIter
+
+    % find nearest neighbors
+    idx = knnsearch(Q,P);
+    Qmatch = Q(idx,:);
+
+    % compute centroids
+    p_mean = mean(P);
+    q_mean = mean(Qmatch);
+
+    % center data
+    P_c = P - p_mean;
+    Q_c = Qmatch - q_mean;
+
+    % compute covariance
+    H = P_c' * Q_c;
+
+    % SVD
+    [U,~,V] = svd(H);
+
+    R = V*U';
+
+    t = q_mean' - R*p_mean';
+
+    % apply transform
+    P = (R*P')' + t';
+
+    % --- accumulate transform ---
+    R_total = R * R_total;
+    t_total = R * t_total + t;
+
+end
+
+P_corrected = P;
+
+% Correct for the rest of the lap
+
+Correction = [tENU_2a3c603c_Run2(:,2) tENU_2a3c603c_Run2(:,3)];
+P_corrected_CV2X = (R_total*Correction')' + t_total';
+
+fig_num = 74;
+figure(fig_num)
+
+
+subplot(1,2,1);
+p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+plotFormat.Color = [0 1 1];
+p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 0];
+p3 = fcn_plotRoad_plotTraceXY(P_corrected, (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 0 1];
+p4 = fcn_plotRoad_plotTraceXY(P_corrected_CV2X, (plotFormat), (0), (fig_num));
+
+xlabel('X'); ylabel('Y')
+grid on
+axis equal
+subplot(1,2,2);
+
+plot(x_mid, y_mid, 'k', 'LineWidth',2);
+plotFormat.Color = [0 0 1];
+fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 0];
+fcn_plotRoad_plotTraceXY(P_corrected, (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 1];
+fcn_plotRoad_plotTraceXY(P_corrected_CV2X, (plotFormat), (0), (fig_num));
+
+
+xlabel('X'); ylabel('Y')
+grid on
+axis equal
+
+%%(OBU ID: 2a3c603c)
+legend([p1 p2 p3 p4], {'Lane Center', 'Original Run 2 CV2X Data', 'Run 1: Corrected CV2X Data','Run 2: Corrected CV2X Data'})
+
+
+
+%% Load velocity and heading data for 2a3c603c Run1 and Run2
+
+%2a3c603c Run1
+[modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA_2a3c603c, tENU_2a3c603c, (-1));
+% Calculate the velocities
+[velocity_2a3c603c, angleENUradians_2a3c603c, compassHeadingDegrees_2a3c603c] = fcn_plotCV2X_calcVelocity(tLLA_2a3c603c, tENU_2a3c603c, modeIndex, offsetCentisecondsToMode, -1);
+
+goodVelocityIndicies_2a3c603c = ~isnan(velocity_2a3c603c);
+velocity_2a3c603c = velocity_2a3c603c(goodVelocityIndicies_2a3c603c,:);
+compassHeadingDegrees_2a3c603c = compassHeadingDegrees_2a3c603c(goodVelocityIndicies_2a3c603c,:);
+tENU_2a3c603c = tENU_2a3c603c(goodVelocityIndicies_2a3c603c,:);
+
+%%
+%%%% With EKF method
+
+% --- Inputs (example placeholders) ---
+% GPS measurements in ENU (vehicle center)
+gps_x = tENU_2a3c603c(:,2);
+gps_y = tENU_2a3c603c(:,3);
+
+
+% HD map matched lane points (same timestamps)
+map_x = x_mid';
+map_y = y_mid';
+map_xy = [map_x map_y]';
+
+N = length(gps_x);
+
+%%% --- State initialization ---
+x = [gps_x(1);
+     gps_y(1);
+     0;          % heading
+     0;          % speed
+     0;          % bias x
+     0];         % bias y
+% %  1 try
+% % P = diag([5 5 0.5 5 2 2]);   % covariance
+% % 
+% % %%% --- Noise parameters ---
+% % Q = diag([0.2 0.2 0.01 0.5 0.001 0.001]);   % process noise
+% % 
+% % R_gps = diag([0.1 0.1]);     % GPS noise (meters^2)
+% % R_map = diag([0.2 0.2]); % HD map noise (very accurate)
+% % 
+% % %%% --- Storage ---
+% % X_est = zeros(N-1,6);
+% % 
+% % %%% ================================
+% % %%% EKF LOOP
+% % %%% ================================
+% % for k = 1:(N-1)
+% % 
+% %     % dt in second
+% %     dt = tENU_2a3c603c(k+1,1) - tENU_2a3c603c(k,1);
+% % 
+% %     %%% ---------- Prediction ----------
+% %     psi = x(3);
+% %     v   = x(4);
+% % 
+% %     % Nonlinear motion model
+% %     x_pred = [
+% %         x(1) + v*cos(psi)*dt;
+% %         x(2) + v*sin(psi)*dt;
+% %         psi;
+% %         v;
+% %         x(5);
+% %         x(6)
+% %     ];
+% % 
+% %     % Jacobian F
+% %     F = eye(6);
+% %     F(1,3) = -v*sin(psi)*dt;
+% %     F(1,4) =  cos(psi)*dt;
+% %     F(2,3) =  v*cos(psi)*dt;
+% %     F(2,4) =  sin(psi)*dt;
+% % 
+% %     % Covariance prediction
+% %     P = F*P*F' + Q;
+% % 
+% %     x = x_pred;
+% % 
+% %     %%% ---------- GPS Update ----------
+% %     z_gps = [gps_x(k); gps_y(k)];
+% % 
+% %     h_gps = [
+% %         x(1) + x(5);
+% %         x(2) + x(6)
+% %     ];
+% % 
+% %     H_gps = [
+% %         1 0 0 0 1 0;
+% %         0 1 0 0 0 1
+% %     ];
+% % 
+% %     S = H_gps*P*H_gps' + R_gps;
+% %     K = P*H_gps'/S;
+% % 
+% %     x = x + K*(z_gps - h_gps);
+% %     P = (eye(6) - K*H_gps)*P;
+% % 
+% %     %%% ---------- HD Map Update ----------
+% % 
+% %     h_map = [x(1); x(2)];
+% % 
+% %     % find nearest neighbors
+% %     idx = knnsearch(map_xy',h_map');
+% %     z_map = map_xy(:,idx);
+% % 
+% %     H_map = [
+% %         1 0 0 0 0 0;
+% %         0 1 0 0 0 0
+% %     ];
+% % 
+% %     S = H_map*P*H_map' + R_map;
+% %     K = P*H_map'/S;
+% % 
+% %     x = x + K*(z_map - h_map);
+% %     P = (eye(6) - K*H_map)*P;
+% % 
+% %     %%% ---------- Save ----------
+% %     X_est(k,:) = x';
+% % end
+
+% % 2try
+
+P = diag([10 10 5 5 5 5]);
+
+% Noise parameters
+Q_base = diag([0.1 0.1 1 1 0.001 0.001]);
+R_gps  = diag([4 4]);       % GPS noise
+R_gt   = diag([0.05 0.05]); % Ground truth noise
+
+X_est = zeros(N-1,6);
+
+% find nearest neighbors
+idx = knnsearch(map_xy',[gps_x gps_y]);
+z_k = map_xy(:,idx);
+
+for k = 1:(N-1)
+
+    dt = tENU_2a3c603c(k+1,1) - tENU_2a3c603c(k,1);
+    
+    % --- Prediction ---
+    F = [
+        1 0 dt 0 0 0
+        0 1 0 dt 0 0
+        0 0 1  0 0 0
+        0 0 0  1 0 0
+        0 0 0  0 1 0
+        0 0 0  0 0 1
+    ];
+
+    x = F*x;
+    P = F*P*F' + Q_base;
+
+    % --- GPS Update ---
+
+    z = [gps_x(k); gps_y(k)];
+
+    H = [
+        1 0 0 0 1 0
+        0 1 0 0 0 1
+    ];
+
+    y = z - H*x;
+    S = H*P*H' + R_gps;
+    K = P*H'/S;
+
+    x = x + K*y;
+    P = (eye(6) - K*H)*P;
+
+    % --- Ground Truth Update  ---
+
+    H = [
+        1 0 0 0 0 0
+        0 1 0 0 0 0
+    ];
+
+    y = z_k(k) - H*x;
+    S = H*P*H' + R_gt;
+    K = P*H'/S;
+
+    x = x + K*y;
+    P = (eye(6) - K*H)*P;
+
+    X_est(k,:) = x';
+end
+fig_num = 8;
+figure(fig_num)
+
+p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+plotFormat.Color = [0 0 1];
+p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 0];
+p3 = fcn_plotRoad_plotTraceXY(P_corrected, (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 1];
+p4 = fcn_plotRoad_plotTraceXY(P_corrected_CV2X, (plotFormat), (0), (fig_num));
+plotFormat.Color = [1 1 0];
+p5 = fcn_plotRoad_plotTraceXY(X_est(:,2:3), (plotFormat), (0), (fig_num));
 xlabel('X'); ylabel('Y')
 title('Parametric Spline Fit for Oval Curve')
 grid on
 axis equal
 
-%% fit a middle line for hte left double-yellow lane
+legend([p1 p2 p3 p4 p5], {'Lane Center', 'Original Run 2 CV2X Data (OBU ID: 2a3c603c)', 'Run 1: Corrected CV2X Data(OBU ID: 2a3c603c)','Run 2: Corrected CV2X Data(OBU ID: 2a3c603c)','EKF method for OBU ID: 2a3c603c'})
 
-x = MVR_ENU(:,1);
-y =  MVR_ENU(:,2);
 
-% Create a parameter t along the points (can be arc length or just index)
-t = linspace(0, 1, length(x));
+%% Rigid Tranformation
 
-% Fit splines separately for x(t) and y(t)
-tt = linspace(0,1,200);  % smooth parameter values
-xx = spline(t, x, tt);
-yy = spline(t, y, tt);
+coord_xform_points = [tENU_2a3c603c(:,2) tENU_2a3c603c(:,3)];
 
-% Plot
-figure
-scatter(x, y, 'filled'); hold on
-plot(xx, yy, 'r', 'LineWidth',2)
+% HD map middle points
+coord_base_points = [x_mid' y_mid'];
+
+% find nearest neighbors
+idx = knnsearch(coord_base_points,coord_xform_points);
+coord_base_points_match = coord_base_points(idx,:);
+fig_num = 9999999;
+[T_calculated,R_calculated,S_calculated,t_calculated,err] = fcn_AlignCoords_fit2DCoordinates(coord_base_points_match, coord_xform_points, fig_num); % Find optimal transform
+sgtitle('Demonstration of fcn_AlignCoords_fit2DCoordinates', 'Interpreter', 'none','FontSize',12);
+fprintf(1,'Using fcn_AlignCoords_fit2DCoordinates:\n');
+fprintf(1,'Results of fitting entire transform matrix, T:\n');
+fprintf(1,'T calculated: \n');
+disp(T_calculated);
+
+
+Run2_ENU_data = [tENU_2a3c603c_Run2(:,2) tENU_2a3c603c_Run2(:,3)];
+
+coord_xform_points(:,3) = 1;
+Run2_ENU_data(:,3) = 1;
+
+Corrected_CV2X_Run2 = (T_calculated\Run2_ENU_data')';
+Corrected_CV2X_Run1 = (T_calculated\coord_xform_points')';
+
+
+fig_num = 9;
+figure(fig_num)
+%subplot(1,2,1);
+p1 = plot(x_mid, y_mid, 'k', 'LineWidth',2);
+plotFormat.Color = [0 1 1];
+p2 = fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 1 0];
+p3 = fcn_plotRoad_plotTraceXY(Corrected_CV2X_Run1(:,1:2), (plotFormat), (0), (fig_num));
+plotFormat.Color = [0 0 1];
+p4 = fcn_plotRoad_plotTraceXY(Corrected_CV2X_Run2(:,1:2), (plotFormat), (0), (fig_num));
+
 xlabel('X'); ylabel('Y')
-title('Parametric Spline Fit for Oval Curve')
 grid on
 axis equal
+% subplot(1,2,2);
+% 
+% plot(x_mid, y_mid, 'k', 'LineWidth',2);
+% plotFormat.Color = [0 0 1];
+% fcn_plotRoad_plotTraceXY(tENU_2a3c603c_Run2(:,2:3), (plotFormat), (0), (fig_num));
+% plotFormat.Color = [0 1 0];
+% fcn_plotRoad_plotTraceXY(P_corrected, (plotFormat), (0), (fig_num));
+% plotFormat.Color = [0 1 1];
+% fcn_plotRoad_plotTraceXY(P_corrected_CV2X, (plotFormat), (0), (fig_num));
+% 
+% 
+% xlabel('X'); ylabel('Y')
+% grid on
+% axis equal
+
+%%(OBU ID: 2a3c603c)
+legend([p1 p2 p3 p4], {'Lane Center', 'Original Run 2 CV2X Data', 'Corrected Run 1 CV2X Data','Corrected Run 2 CV2X Data'})
+%% 3D plotting with error testing
+
+fig_num = 10;
+figure(fig_num)
+plot(x_mid, y_mid, 'k', 'LineWidth',2);
+plot3(Corrected_CV2X_Run1(:,1), Corrected_CV2X_Run1(:,2),err);
+
+xlabel('X'); ylabel('Y'), zlabel('Error')
+
+%% Error comparasion
+
+% find nearest neighbors
+idx = knnsearch(coord_base_points,P_corrected);
+coord_base_points_match = coord_base_points(idx,:);
+err_ICP = sum((P_corrected-coord_base_points_match(:,1:2)).^2,2).^0.5;
+
+% RMSE → overall performance (penalizes large errors)
+% MAE → average deviation
+% Max → worst-case safety
+% STD → consistency
+rmse_RT = sqrt(mean(err.^2));
+mae_RT  = mean(abs(err));
+maxe_RT = max(abs(err));
+stde_RT = std(err);
+
+rmse_ICP = sqrt(mean(err_ICP.^2));
+mae_ICP  = mean(abs(err_ICP));
+maxe_ICP = max(abs(err_ICP));
+stde_ICP = std(err_ICP);
+
+fig_num = 11;
+figure(fig_num)
+subplot(2,2,1)
+plot(err, 'b', 'LineWidth', 2); hold on;
+plot(err_ICP, 'r--', 'LineWidth', 2);
+grid on;
+xlabel('Sample Index');
+ylabel('Error');
+legend('Error using Rigid Transformation', 'Error using ICP method');
+subplot(2,2,2)
+plot(rmse_RT, 'b', 'LineWidth', 2); hold on;
+plot(rmse_ICP, 'r--', 'LineWidth', 2);
+grid on;
+xlabel('Sample Index');
+ylabel('Error Root Mean Square');
+legend('Root Mean Square Error using Rigid Transformation', 'Root Mean Square Error using ICP method');
+subplot(2,2,3)
+plot(mae_RT, 'b', 'LineWidth', 2); hold on;
+plot(mae_ICP, 'r', 'LineWidth', 2);
+plot(maxe_RT, 'b--', 'LineWidth', 2); hold on;
+plot(maxe_ICP, 'r--', 'LineWidth', 2);
+grid on;
+xlabel('Sample Index');
+ylabel('Error Root Mean Square');
+legend('Average Deviation Error using Rigid Transformation', 'Average Deviation Error 2 using ICP method', 'worst-case safety with Rigid Transformation', 'worst-case safety with ICP method');
+title('Error Comparison');
+
+
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   ______                _   _
