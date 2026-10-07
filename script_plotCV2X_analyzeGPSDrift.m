@@ -1,30 +1,21 @@
-%% Introduction to and Purpose of the plotCV2X codes
-% This is a strter script to show the primary functionality of the
-% plotRoad library.
-%
-% This is the explanation of the code that can be found by running
-%
-%       script_demo_plotCV2X
-%
-% This is a script to demonstrate the functions within the PlotCV2X code
-% library. This code repo is typically located at:
-%
-%   https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotCV2X
+%% script_plotCV2X_analyzeTestTrack
+% This is an analysis script for the Test Track location near Falling Water
 %
 % If you have questions or comments, please contact Sean Brennan at
 % sbrennan@psu.edu
 
-
+close all
 
 %% Revision History:
-% 2023_08_15 - sbrennan@psu.edu and vbw5054@psu.edu
-% -- First write of code using PlotROad code as starter
+% 2023_08_25 - sbrennan@psu.edu
+% -- Started writing the function
 % 2024_09_26 - sbrennan@psu.edu
-% -- Updated function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+% -- updated function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+
 
 %% To-Do list
 % 2024_08_15 - S. Brennan
-% -- Fix gca versus gcf in the plotRoad library, under the LL plot function
+% -- Nothing yet!
 
 %% Prep the workspace
 close all
@@ -51,7 +42,7 @@ library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomToo
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PlotRoad_v2024_08_19';
 library_folders{ith_library} = {'Functions', 'Data'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip'; 
+library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2024_08_19.zip';
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'PathClass_v2024_03_14';
@@ -105,16 +96,10 @@ if ~exist('flag_plotCV2X_Folders_Initialized','var')
     flag_plotCV2X_Folders_Initialized = 1;
 end
 
-%% Load hard-coded vectors
-% These are used to align key data to a local coordinate system wherein
-% that data is axis-aligned.
-
-hard_coded_reference_unit_tangent_vector_outer_lanes   = [0.793033249943519   0.609178351949592];
-hard_coded_reference_unit_tangent_vector_LC_south_lane = [0.794630317120972   0.607093616431785];
-
 %% Set environment flags that define the ENU origin
 % This sets the "center" of the ENU coordinate system for all plotting
 % functions
+
 
 % Location for Test Track base station
 setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
@@ -164,69 +149,80 @@ setenv('MATLABFLAG_PLOTCV2X_FLAG_DO_DEBUG','0');
 % https://patorjk.com/software/taag/#p=display&f=Big&t=Core%20%20Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-%% Load Dynamic Map Platform HDMap Lane Marker Data
 
+%% Load all the site data
+
+% What files are in the data directory that start with the name 'TestTrack'?
+dirname = cat(2,'Data',filesep,'GPSDrift*');
+dirList = dir(dirname);
+Nfiles = length(dirList);
+
+% Initialize arrays
+fnames{Nfiles} = '';
+tLLAs{Nfiles} = [];
+tENUs{Nfiles} = [];
+velocities{Nfiles} = [];
+anglesENU{Nfiles} = [];
+compassHeadings{Nfiles} = [];
+
+alltLLAs = [];
+alltENUs = [];
+allRSUs = [];
+allVelocities = [];
+allVelocityDisparities = [];
+allVelocityDisparitiesSameHeading = [];
+allCompassHeadings = [];
+
+for ith_file = 1:Nfiles
+    % Get current filename
+    csvFile = dirList(ith_file).name;
+
+    fprintf(1,'Loading data from file: %s ...',csvFile);
+
+    % Load the data
+    [tLLA, tENU, OBUID] = fcn_plotCV2X_loadDataFromFile(csvFile, (-1));
+
+    % Determine which RSU this belongs to. The number is in the 10th digit
+    RSUcharacter = csvFile(14);
+    RSUdigit = str2double(RSUcharacter);
+
+
+    % Group the data into continuous "modes", e.g. data sets that have the
+    % same intercept when plotting time versus index
+    [modeIndex, ~, offsetCentisecondsToMode] = fcn_plotCV2X_assessTime(tLLA, tENU, (-1));
+
+    % Calculate the velocities
+    [velocity, angleENUradians, compassHeadingDegrees] = fcn_plotCV2X_calcVelocity(tLLA, tENU, modeIndex, offsetCentisecondsToMode, -1);
+
+    % Calculate the velocity disparity
+    searchRadiusAndAngles = 20;
+    speedDisparity = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (-1));
+
+    searchRadiusAndAngles = [20 15*pi/180];
+    speedDisparitySameHeading = fcn_plotCV2X_calcSpeedDisparity(tLLA, tENU, searchRadiusAndAngles, (-1));
+
+    % Save results
+    fnames{ith_file} = csvFile;
+    tLLAs{ith_file} = tLLA;
+    tENUs{ith_file} = tENU;
+    velocities{ith_file} = velocity;
+    anglesENU{Nfiles} = angleENUradians;
+    compassHeadings{Nfiles} = compassHeadingDegrees;
+
+    allRSUs = [allRSUs; RSUdigit*ones(length(tLLA(:,1)),1)]; %#ok<AGROW>
+    allVelocities = [allVelocities; velocity]; %#ok<AGROW>
+    allVelocityDisparities = [allVelocityDisparities; speedDisparity]; %#ok<AGROW>
+    allVelocityDisparitiesSameHeading = [allVelocityDisparitiesSameHeading; speedDisparitySameHeading]; %#ok<AGROW>
+
+    alltLLAs = [alltLLAs; tLLA]; %#ok<AGROW>
+    alltENUs = [alltENUs; tENU]; %#ok<AGROW>
+    allCompassHeadings = [allCompassHeadings; compassHeadingDegrees]; %#ok<AGROW>
+
+    fprintf(1,'done.\n');
+end
+
+%% Plot data
 fig_num = 1;
-figure(fig_num);
-clf;
-
-csvFile = 'NotSorted/LaneMarkerLLA.csv'; % Path to your CSV file
-
-[DMP_LLA, DMP_ENU, DMP_MarkerID] = fcn_plotDMPHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
-
-% Was a figure created?
-assert(all(ishandle(fig_num)));
-
-% Does the data have 3 columns?
-assert(length(DMP_LLA(1,:))== 3)
-assert(length(DMP_ENU(1,:))== 3)
-
-<<<<<<< HEAD
-=======
-% % Does the data have many rows
-% Nrows_expected = 5168;
-% assert(length(tLLA(:,1))== Nrows_expected)
-% assert(length(tENU(:,1))== Nrows_expected)
->>>>>>> 4aa0eb22b0a1a1867bce3928d1139fe5b9208a89
-
-%% Load Mapping Van HDMap LEFT Lane Marker Data
-
-fig_num = 21;
-figure(fig_num);
-
-csvFile = 'LaneMarkerLeft_Valid_LLA.csv'; % Path to your CSV file
-
-[MVL_LLA, MVL_ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
-
-% Was a figure created?
-assert(all(ishandle(fig_num)));
-
-% Does the data have 3 columns?
-assert(length(MVL_LLA(1,:))== 3)
-assert(length(MVL_ENU(1,:))== 3)
-
-%% Load Mapping Van HDMap RIGHT Lane Marker Data
-
-fig_num = 22;
-figure(fig_num);
-
-csvFile = 'LaneMarkerRight_Valid_LLA.csv'; % Path to your CSV file
-
-[MVR_LLA, MVR_ENU] = fcn_plotHDMap_loadLaneMarkerDataFromFile(csvFile, (fig_num));
-sgtitle({sprintf('Example %.0d: fcn_plotHDMap_loadDataFromFile',fig_num),'Showing LaneMarkerLLA.csv'}, 'Interpreter','none');
-
-% Was a figure created?
-assert(all(ishandle(fig_num)));
-
-% Does the data have 3 columns?
-assert(length(MVR_LLA(1,:))== 3)
-assert(length(MVR_ENU(1,:))== 3)
-
-%% Plot Lane Marker data form both source
-
-fig_num = 3;
 figure(fig_num);
 
 clear plotFormat
@@ -237,69 +233,36 @@ plotFormat.LineWidth = 5;
 
 flag_plot_headers_and_tailers = 0;
 
-
-subplot(1,2,1);
 plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceXY(DMP_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 0];
-fcn_plotRoad_plotTraceXY(MVL_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 1];
-fcn_plotRoad_plotTraceXY(MVR_ENU(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+fcn_plotRoad_plotTraceXY(alltENUs(1000:2000,2:3), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
 
-subplot(1,2,2);
-plotFormat.Color = [0 0 1];
-fcn_plotRoad_plotTraceLL(DMP_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 0];
-fcn_plotRoad_plotTraceLL(MVL_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
-plotFormat.Color = [1 0 1];
-fcn_plotRoad_plotTraceLL(MVR_LLA(:,1:2), (plotFormat), (flag_plot_headers_and_tailers), (fig_num));
+%%
+fig_num = 2;
+figure(fig_num);
 
+h = animatedline('Color', 'b', 'LineWidth', 2, 'Marker', 'o');
+grid on;
+xlabel('X Position');
+ylabel('Y Position');
+title('Live X-Y Simulation Over Time');
 
-legend('Base Station','Dynamic Map Platform Lane Marker Data','Mapping Van Lane Marker Data (LEFT)', 'Mapping Van Lane Marker Data (Right)')
+% 3. Set static axis limits to prevent jarring resizing
+axis([min(alltENUs(:,2))-1, max(alltENUs(:,2))+1, min(alltENUs(:,3))-1, max(alltENUs(:,3))+1]);
 
-%% fit a middle line for hte left double-yellow lane
+% 4. Simulation loop
+for k = 1:length(alltENUs(:,1))
+    % Add the current X and Y point to the animated line
+    addpoints(h, alltENUs(k,2), alltENUs(k,3));
+    
+    % Update the plot window title to show current timestamp
+    title(sprintf('Simulation Time: %.2f s', alltENUs(k,1) - alltENUs(1,1)));
+    
+    % Pause briefly to control simulation speed (e.g., matching timestamps)
+    if k < length(alltENUs(:,1))
+        pause(0.1*(alltENUs(k+1,1) - alltENUs(k,1))); 
+    end
+end
 
-x = MVL_ENU(:,1);
-y =  MVL_ENU(:,2);
-
-% Create a parameter t along the points (can be arc length or just index)
-t = linspace(0, 1, length(x));
-
-% Fit splines separately for x(t) and y(t)
-tt = linspace(0,1,200);  % smooth parameter values
-xx = spline(t, x, tt);
-yy = spline(t, y, tt);
-
-% Plot
-figure
-scatter(x, y, 'filled'); hold on
-plot(xx, yy, 'r', 'LineWidth',2)
-xlabel('X'); ylabel('Y')
-title('Parametric Spline Fit for Oval Curve')
-grid on
-axis equal
-
-%% fit a middle line for hte left double-yellow lane
-
-x = MVR_ENU(:,1);
-y =  MVR_ENU(:,2);
-
-% Create a parameter t along the points (can be arc length or just index)
-t = linspace(0, 1, length(x));
-
-% Fit splines separately for x(t) and y(t)
-tt = linspace(0,1,200);  % smooth parameter values
-xx = spline(t, x, tt);
-yy = spline(t, y, tt);
-
-% Plot
-figure
-scatter(x, y, 'filled'); hold on
-plot(xx, yy, 'r', 'LineWidth',2)
-xlabel('X'); ylabel('Y')
-title('Parametric Spline Fit for Oval Curve')
-grid on
-axis equal
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   ______                _   _
@@ -747,4 +710,45 @@ if flag_do_debug
 end
 
 end % Ends function fcn_DebugTools_installDependencies
+
+function fcn_INTERNAL_setSpeedColorBar(velocity,Ncolors)
+h_colorbar = colorbar;
+h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+% There are 2.23694 mph in 1 m/s
+colorbarValues   = round(2.23694 * linspace(min(velocity), max(velocity), Ncolors));
+h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+h_colorbar.Label.String = 'Speed (mph)';
+end
+
+function fcn_INTERNAL_setHeadingColorBar(Ncolors)
+h_colorbar = colorbar;
+h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+colorbarValues   = round(linspace(0,360, Ncolors),-1);
+h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+h_colorbar.Label.String = 'Heading (deg)';
+end
+
+
+function fcn_INTERNAL_setHeightColorBar(height,Ncolors)
+h_colorbar = colorbar;
+h_colorbar.Ticks = linspace(0, 1, Ncolors) ; %Create ticks from zero to 1
+colorbarValues   = round(linspace(min(height), max(height), Ncolors),-1);
+h_colorbar.TickLabels = num2cell(colorbarValues) ;    %Replace the labels of these 8 ticks with the numbers 1 to 8
+h_colorbar.Label.String = 'Height (meters)';
+end
+
+function outputData = fcn_INTERNAL_rescaleAxis(inputData,rangeData)
+outputData = inputData;
+maxValue  = max(rangeData);
+minValue = min(rangeData);
+outputData(:,3) = (inputData(:,3)-minValue)/(maxValue - minValue);
+end
+
+function fcn_INTERNAL_addTitle(flag_combine_all,text_to_list, SiteStringIdentifier, thisRSUnumber)
+if 1==flag_combine_all
+    title(sprintf('Site: %s, %s',SiteStringIdentifier, text_to_list), 'Interpreter','none','FontSize',12);
+else
+    title(sprintf('RSU %.0d, %s',thisRSUnumber, text_to_list), 'Interpreter','none','FontSize',12);
+end
+end
 

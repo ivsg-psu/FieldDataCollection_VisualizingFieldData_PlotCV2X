@@ -171,7 +171,7 @@ end
 % as NaNs
 lat = data{1}/10000000;
 lon = data{2}/10000000;
-elv = data{3}/1.0;
+elv = data{3}/10;
 
 % Save result in output format
 tLLA = [timeSeconds lat lon elv];
